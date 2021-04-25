@@ -729,7 +729,7 @@ class ExperimentManager(object):
 
 
     
-  def train_unet(self,model, learning_rate=0.0001, in_channels=3, epochs=20, 
+  def train_unet(self,model, learning_rate=0.0001,  epochs=20, 
                         train_dataloader=None, val_dataloader=None, test_dataloader=None, validation_split_size=0.1, batch_size=4,
                       img_train_transform=None,
                       seg_train_transform=None,
@@ -773,7 +773,7 @@ class ExperimentManager(object):
       return loss_train, loss_validation, IOU_train, IOU_validation, IOU_test, model, segmentation_progress, segmentation_progress_pred, segmentation_progress_true_mask
 
       
-  def train_convnet(self,model, learning_rate=0.0001, in_channels=3, epochs=20, 
+  def train_convnet(self,model, learning_rate=0.0001,  epochs=20, 
                         train_dataloader=None, val_dataloader=None, test_dataloader=None, validation_split_size=0.1, batch_size=4,
                       img_train_transform=None,
                       seg_train_transform=None,
@@ -805,7 +805,6 @@ class ExperimentManager(object):
                                                                                         train_dataloader, 
                                                                                         val_dataloader, 
                                                                                         model,
-                                                                                        in_channels=in_channels, 
                                                                                         learning_rate=learning_rate,
                                                                                         n_epochs=epochs, 
                                                                                         verbose=verbose
