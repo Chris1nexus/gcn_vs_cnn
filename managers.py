@@ -717,7 +717,7 @@ class ExperimentManager(object):
   def __init__(self, datasetManager ):
       self.img_means = (0.7297678 , 0.4809845 , 0.65480953)
       self.var = (0.02753073, 0.04772836, 0.02944909)
-      self.img_std = np.sqrt(var)
+      self.img_std = np.sqrt(self.var)
       self.gray_mean = (0.5709)
       self.gray_std = np.sqrt(0.0433)
 
