@@ -10,8 +10,6 @@ from processing_utils import ToGraphTransform
 from image_utils import get_segmentation_mask, read_image
 from utils import DriveDownloader
 from processing_utils import ToGraphTransform
-
-from managers import RCCDatasetManager
 from image_utils import np_make_crops, np_recompose_tensor,  img_paste_fn, seg_paste_fn, read_image, get_segmentation_mask
 from utils import recursive_visit, DriveDownloader
 from augmentation_utils import AugmentTransform
@@ -265,7 +263,7 @@ class CropDataset(Dataset):
         y_labels = []
 
 
-        assert partition == RCCDatasetManager.X_TRAIN or partition == RCCDatasetManager.X_TEST, "Error: dataset split must either be 'Train' or 'Test' "
+        assert partition == "Train" or partition == "Test", "Error: dataset split must either be 'Train' or 'Test' "
         
         
         folder_path = os.path.join(self.root_path, partition)
@@ -286,7 +284,7 @@ class CropDataset(Dataset):
 
 
         filename_pattern = None
-        if partition == RCCDatasetManager.X_TEST :
+        if partition == "Test" :
             filename_pattern = test_pattern
         else:
             filename_pattern = train_pattern
@@ -310,7 +308,7 @@ class CropDataset(Dataset):
                     id_to_labels.append(directory)
                     # pRCC or cRCC
                     category = directory
-                    if partition == RCCDatasetManager.X_TEST:
+                    if partition == "Test":
                         replacement_string = "{}_{}_".format(category, "img")
                     else:
                         replacement_string = "{}_".format("crop")
