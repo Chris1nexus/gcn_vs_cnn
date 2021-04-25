@@ -17,7 +17,7 @@ import random
 from sklearn.model_selection import train_test_split
 from sklearn import model_selection
 from stellargraph.mapper import PaddedGraphGenerator
-
+from tensorflow.keras.callbacks import EarlyStopping
 
 from utils import DriveDownloader, recursive_visit
 from datasets import RCCStorage, RCCImageSubset, RCCImageDataset, CropDataset
@@ -28,7 +28,6 @@ from operator import itemgetter
 from processing_utils import ToGraphTransform
 from image_utils import binarize_to_numpy
 from torch_geometric.data import Data
-
 from train_segmentation_methods import train_segmentation_model, train_crop_segmentation_model,  validate_segmentation
 from train_clf_methods import train_classifier, test_classifier
 from train_graph_nn import train_test_torch_gcn
