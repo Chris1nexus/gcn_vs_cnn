@@ -744,7 +744,7 @@ class ExperimentManager(object):
 
       if train_dataloader == None or val_dataloader == None or test_dataloader == None :
         assert val_dataloader == None and val_dataloader == None and test_dataloader == None  , "Error: if any of the dataloaders is empty, all three must be set to None"
-        (train_dataset, validation_dataset, test_dataset), _ = datasetManager.init_train_val_split(validation_split_size, 
+        (train_dataset, validation_dataset, test_dataset), _ = self.datasetManager.init_train_val_split(validation_split_size, 
                                         batch_size=batch_size,
                                         img_train_transform = img_train_transform,
                                         seg_train_transform = seg_train_transform,
@@ -788,7 +788,7 @@ class ExperimentManager(object):
 
       if train_dataloader == None or val_dataloader == None or test_dataloader == None :
         assert val_dataloader == None and val_dataloader == None and test_dataloader == None  , "Error: if any of the dataloaders is empty, all three must be set to None"
-        (train_dataset, validation_dataset, test_dataset), _ = datasetManager.init_train_val_split(validation_split_size, 
+        (train_dataset, validation_dataset, test_dataset), _ = self.datasetManager.init_train_val_split(validation_split_size, 
                                         batch_size=batch_size,
                                         img_train_transform = img_train_transform,
                                         seg_train_transform = seg_train_transform,
