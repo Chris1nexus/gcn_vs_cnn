@@ -10,6 +10,7 @@ from log_utils import ExperimentLogger
 import torchvision.utils as vutils
 import sys
 import cv2
+from tqdm import tqdm
 
 from metrics import IoU
 
