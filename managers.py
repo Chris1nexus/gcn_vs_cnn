@@ -64,7 +64,7 @@ class RCCDatasetManager(object):
                                      'by_single_img_stats_on_test':False},  # if true, a test sample is standardized according to its own provided information
                  
                  load_graphs = True,
-                
+                img_format = 'RGB',                  
                 resize_dim=512,
                 verbose=False):
 
