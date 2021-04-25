@@ -33,6 +33,7 @@ from train_segmentation_methods import train_segmentation_model, train_crop_segm
 from train_clf_methods import train_classifier, test_classifier
 from train_graph_nn import train_test_torch_gcn
 from train_sg_graph_nn import create_graph_classification_model
+from metrics import IoU
 
 
 
@@ -1162,3 +1163,72 @@ class ExperimentManager(object):
 
   
         return loss_train, loss_validation, IOU_train, IOU_validation, segmentation_progress, model
+
+
+
+
+
+
+
+
+
+
+def get_predicted_segmentation_masks_dataset(model, dataloader):
+  model.eval()
+  device = torch.device("cpu" if not torch.cuda.is_available() else "cuda")
+  
+  log_softmax = nn.LogSoftmax(dim=1)
+  IoU_test =[]
+  predicted_segmentation_masks = []
+  y_labels = []
+  
+  for (path_img, path_seg, img, seg, seg_gt),label in dataloader:
+    seg = seg.to(device)
+    img = img.to(device)
+    seg_gt = seg_gt.long().to(device)
+    seg_pred = model(img)
+    y_pred_binarized = log_softmax(seg_pred).argmax(dim=1, keepdim=True)
+
+    IoU_test.append(IoU(y_pred_binarized, seg_gt))
+
+    # store each prediction alongside the label
+    for idx in range(len(img)):
+      # cv2 format for grayscale images requires uint8 data type for numpy arrays
+      predicted_segmentation_masks.append( (y_pred_binarized[idx].cpu().detach().numpy().squeeze()*255).astype(np.uint8) )
+      y_labels.append(label[idx].numpy().item())
+    del seg
+    del img
+    del seg_gt
+    del seg_pred
+    
+  return predicted_segmentation_masks, y_labels
+
+
+def get_pred_mask_graph_datasets(segmentation_model, train_dataloader, val_dataloader, test_dataloader, resize_dim=512):
+  # inner utility function
+  def get_pred_graphs_dataset(X,y,resize_dim, img_format='RGB', seg_color_mapping=cv2.IMREAD_GRAYSCALE, loading_prompt_string=None):
+          pred_graphs, pred_graph_labels = RCCDatasetManager.load_graph_items(X, y,
+                                                                                                              resize_dim,
+                                                                                                              img_format,
+                                                                                                            seg_color_mapping, 
+                                                                                                            loading_prompt_string= loading_prompt_string)
+          return pred_graphs, pred_graph_labels
+  X_train, y_train = get_predicted_segmentation_masks_dataset(segmentation_model, train_dataloader)
+  X_val, y_val = get_predicted_segmentation_masks_dataset(segmentation_model, val_dataloader)
+  X_test, y_test = get_predicted_segmentation_masks_dataset(segmentation_model, test_dataloader)
+
+  training_dataset = X_train 
+  training_labels = y_train 
+
+  val_dataset = X_val
+  val_labels = y_val
+
+  test_dataset = X_test
+  test_labels = y_test
+
+  train_pred_graphs, train_pred_graph_labels = get_pred_graphs_dataset(training_dataset,training_labels,resize_dim, loading_prompt_string="train dataset segmentation_model masks ")
+  val_pred_graphs, val_pred_graph_labels = get_pred_graphs_dataset(val_dataset,val_labels,resize_dim, loading_prompt_string="train dataset segmentation_model masks ")
+  test_pred_graphs, test_pred_graph_labels = get_pred_graphs_dataset(test_dataset,test_labels,resize_dim, loading_prompt_string="train dataset segmentation_model masks ")
+  
+  return (train_pred_graphs, train_pred_graph_labels), (val_pred_graphs, val_pred_graph_labels), (test_pred_graphs, test_pred_graph_labels)
+
