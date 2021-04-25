@@ -1181,8 +1181,8 @@ def get_predicted_segmentation_masks_dataset(model, dataloader):
   y_labels = []
   
   for (path_img, path_seg, img, seg, seg_gt),label in dataloader:
-    seg = seg.to(device)
-    img = img.to(device)
+   
+    img = img.float().to(device)
     seg_gt = seg_gt.long().to(device)
     seg_pred = model(img)
     y_pred_binarized = log_softmax(seg_pred).argmax(dim=1, keepdim=True)
@@ -1194,7 +1194,7 @@ def get_predicted_segmentation_masks_dataset(model, dataloader):
       # cv2 format for grayscale images requires uint8 data type for numpy arrays
       predicted_segmentation_masks.append( (y_pred_binarized[idx].cpu().detach().numpy().squeeze()*255).astype(np.uint8) )
       y_labels.append(label[idx].numpy().item())
-    del seg
+
     del img
     del seg_gt
     del seg_pred
