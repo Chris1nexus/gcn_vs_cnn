@@ -33,7 +33,7 @@ from train_clf_methods import train_classifier, test_classifier
 from train_graph_nn import train_test_torch_gcn
 from train_sg_graph_nn import create_graph_classification_model
 from metrics import IoU
-
+from image_utils import read_image
 
 
 class RCCDatasetManager(object):
