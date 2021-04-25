@@ -62,11 +62,11 @@ def train_classifier(log_weights_path,  train_dataloader, val_dataloader, model,
                    
                     loss = criterion(y_pred,labels)
                     
-					logsoftmax = nn.LogSoftmax(dim=1)
-					y_pred_binarized = logsoftmax(y_pred).argmax(dim=1)
+                    logsoftmax = nn.LogSoftmax(dim=1)
+                    y_pred_binarized = logsoftmax(y_pred).argmax(dim=1)
 
-					corrects = torch.sum(y_pred_binarized == labels).data.item() 
-					accuracy = corrects/len(labels)
+                    corrects = torch.sum(y_pred_binarized == labels).data.item() 
+                    accuracy = corrects/len(labels)
                     if phase == "valid":
                         loss_validation_epoch.append(loss.item())
                         acc_validation_epoch.append(accuracy)
