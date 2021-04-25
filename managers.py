@@ -769,7 +769,7 @@ class ExperimentManager(object):
                                                                                         verbose=verbose, verbose_loss_acc=verbose_loss_acc
                                                                                         , weights_filename=weights_filename)
 
-      IOU_test = validate_segmentation(model, test_dataloader, criterion=nn.CrossEntropyLoss())
+      IOU_test = validate_segmentation(model, test_dataloader )
       return loss_train, loss_validation, IOU_train, IOU_validation, IOU_test, model, segmentation_progress, segmentation_progress_pred, segmentation_progress_true_mask
 
       
