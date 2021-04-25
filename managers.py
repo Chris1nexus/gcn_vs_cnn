@@ -29,7 +29,7 @@ from processing_utils import ToGraphTransform
 from image_utils import binarize_to_numpy
 from torch_geometric.data import Data
 
-from train_segmentation_methods import train_segmentation_model, train_crop_segmentation_model,  validate_segmentation, get_pred_mask_graph_datasets
+from train_segmentation_methods import train_segmentation_model, train_crop_segmentation_model,  validate_segmentation
 from train_clf_methods import train_classifier, test_classifier
 from train_graph_nn import train_test_torch_gcn
 from train_sg_graph_nn import create_graph_classification_model
