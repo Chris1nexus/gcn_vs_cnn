@@ -102,11 +102,11 @@ def train_classifier(log_weights_path,  train_dataloader, val_dataloader, model,
                 
                 loss_valid_epoch = []
                 acc_validation_epoch = []
-	logger.log('train_accuracy', acc_train)
-	logger.log('validation_accuracy', acc_validation)
-	logger.log('train_loss', loss_train)
-	logger.log('validation_loss', loss_validation)
-	logger.log('model', model)
+    logger.log('train_accuracy', acc_train)
+    logger.log('validation_accuracy', acc_validation)
+    logger.log('train_loss', loss_train)
+    logger.log('validation_loss', loss_validation)
+    logger.log('model', model)
 
     return loss_train, loss_validation, acc_train, acc_validation, model
 
