@@ -10,8 +10,6 @@ from log_utils import ExperimentLogger
 import torchvision.utils as vutils
 
 import cv2
-from managers import RCCDatasetManager
-
 
 from metrics import IoU
 
