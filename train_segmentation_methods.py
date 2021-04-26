@@ -205,7 +205,7 @@ def train_crop_segmentation_model(log_weights_path,  train_dataloader, val_datal
     out_channels=2
    
  
-    model.to(device).half()
+    model.to(device)
   
 
     log_dir = "./logs"
@@ -251,7 +251,7 @@ def train_crop_segmentation_model(log_weights_path,  train_dataloader, val_datal
                     for batch in multi_crop_batch:
                       img, mask = batch 
                       
-                      img, mask  = img.to(device).float().half(), mask.long().squeeze(dim=1).to(device)
+                      img, mask  = img.to(device).float(), mask.long().squeeze(dim=1).to(device)
                       
                       optimizer.zero_grad()
 
