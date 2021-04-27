@@ -62,7 +62,7 @@ def main(args):
                                                                   'verbose_loss_acc': False}
         print("Unet training started: storing results in {}".format(args.weights_dir))
         loss_train, loss_validation, IOU_train, IOU_validation, IOU_test, unet, segmentation_progress, segmentation_progress_pred, segmentation_progress_true_mask = experiment_mgr.train_unet(unet, **kwargs_dict)
-        print("GCN training completed")
+        print("Unet training completed")
         plot_segmentation_progress(segmentation_progress, args.weights_dir)
         plot_results(args, loss_train, loss_validation, IOU_train, IOU_validation, metric_name='IoU')
 					
