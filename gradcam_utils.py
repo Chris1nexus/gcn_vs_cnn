@@ -94,10 +94,9 @@ def test_classifier_gradcam(model, target_layer, dataloader,
       raw = fig.add_subplot(132)
 
       if 1 in rgb_img.shape:
-        cmap = 'gray'
+        raw.imshow(rgb_img.squeeze(), cmap='gray')
       else:
-        cmap = 'rgb'
-      raw.imshow(rgb_img.squeeze(), cmap=cmap)
+        raw.imshow(rgb_img.squeeze())
       raw.title.set_text('Raw slide patch: '+ str(mapper_to_categorical[ground_truth]))
       #gradcam_not_predicted = fig.add_subplot(133)
       #gradcam_not_predicted.imshow(visualization_not_predicted)
