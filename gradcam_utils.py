@@ -89,6 +89,7 @@ def test_classifier_gradcam(model, target_layer, dataloader,
       fig = plt.figure(figsize=(14,10))
       gradcam_predicted = fig.add_subplot(131)
       gradcam_predicted.imshow(visualization_predicted)
+      gradcam_predicted.imshow(curr_mask, cmap='jet', alpha=0.2)
       gradcam_predicted.title.set_text('ROI of the prediction: ' + str(mapper_to_categorical[predicted]) + " probability=%.1f"%(confidence_proba[predicted]*100) \
                                        + "%\n" + correct_prediction_str + " prediction")
       raw = fig.add_subplot(132)
@@ -97,6 +98,7 @@ def test_classifier_gradcam(model, target_layer, dataloader,
         raw.imshow(rgb_img.squeeze(), cmap='gray')
       else:
         raw.imshow(rgb_img.squeeze())
+      raw.imshow(curr_mask, cmap='jet', alpha=0.2)
       raw.title.set_text('Raw slide patch: '+ str(mapper_to_categorical[ground_truth]))
       #gradcam_not_predicted = fig.add_subplot(133)
       #gradcam_not_predicted.imshow(visualization_not_predicted)
