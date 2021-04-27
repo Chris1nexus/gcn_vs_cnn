@@ -1,4 +1,17 @@
 import argparse
+import numpy as np
+import os
+import torch.nn as nn
+import torch
+from torchvision import transforms
+from torch.utils.data import DataLoader
+from torchvision import models
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation  
+from IPython.display import HTML
+from matplotlib.animation import PillowWriter
+
+
 
 
 from plot_utils import ipyDisplay
@@ -8,17 +21,7 @@ from image_utils import is_on, remove_isolated
 from processing_utils import UnNormalize
 from processing_utils import ToGraphTransform
 from neural_nets import UNet
-
-
 from managers import RCCDatasetManager, ExperimentManager
-import numpy as np
-import os
-import torch.nn as nn
-import torch
-from torchvision import transforms
-from torch.utils.data import DataLoader
-from torchvision import models
-import matplotlib.pyplot as plt
 
 
 
@@ -79,10 +82,11 @@ def main(args):
 						                                          'augment_params_dict':augment_params_dict,
 						                                          'verbose_loss_acc': True}
 
-						print("UNet training started")						
+						print("UNet training started: storing results in '{}' ".format(log_weights_path))						
 						loss_train, loss_validation, IOU_train, IOU_validation, IOU_test, unet, segmentation_progress, segmentation_progress_pred, segmentation_progress_true_mask = experiment_mgr.train_unet(unet, **kwargs_dict)
 						print("Unet training completed\n")
 						plot_results(args, loss_train, loss_validation, IOU_train, IOU_validation, metric_name='IoU')
+						plot_segmentation_progress(segmentation_progress, log_weights_path)
 					
 
 
@@ -167,21 +171,22 @@ def plot_results(args, train_loss, val_loss, train_metric, val_metric, metric_na
         img_file_path = os.path.join(args.weights_dir, args.weights_fname +"_train.png")
         fig = plt.figure(figsize=(12,4))
         loss_fig = fig.add_subplot(121)
-        loss_fig.plot(loss_train)
-        loss_fig.plot(loss_validation)
+        loss_fig.plot(train_loss)
+        loss_fig.plot(val_loss)
         loss_fig.set_title('model loss')
         loss_fig.set_ylabel('loss')
         loss_fig.set_xlabel('epoch')
         loss_fig.legend(['train', 'validation'], loc='upper left')
 
         acc_fig = fig.add_subplot(122)
-        acc_fig.plot(acc_train)
-        acc_fig.plot(acc_validation)
+        acc_fig.plot(train_metric)
+        acc_fig.plot(val_metric)
         acc_fig.set_title('model ' + metric_name)
         acc_fig.set_ylabel(metric_name)
         acc_fig.set_xlabel('epoch')
         acc_fig.legend(['train', 'validation'], loc='upper left')
         plt.savefig(img_file_path)
+
 
 def setup_dataset(args, load_graphs=False):
     ROOT_PATH = args.images 
@@ -235,6 +240,34 @@ def setup_preprocessing(args):
 
     return (img_train_transform, img_test_transform), (seg_train_transform, seg_test_transform)
 
+
+
+""" segmentation plotting"""
+def plot_segmentation_progress(segmentation_progress, log_dir):
+		finals = []
+		pred_progress_list,mask_progress_list = [],[]
+		for epoch, items in segmentation_progress:
+			cat_tensor = torch.cat(  [  torch.where( pred > 0., pred, true*0.5 )  for idx, pred , true in items if pred.shape[1] == 2058  ]    , dim=0)
+			
+			pred_cat = torch.cat(  [ pred for idx, pred , true in items if pred.shape[1] == 2058  ]    , dim=0)
+			true_cat = torch.cat(  [ true for idx, pred , true in items if pred.shape[1] == 2058  ]    , dim=0)
+			pred_progress_list.append(pred_cat)
+			mask_progress_list.append(true_cat)
+			finals.append(cat_tensor)
+		
+
+		fig = plt.figure(figsize=(10,10))
+		plt.axis("off")
+
+		ims = [[plt.imshow(pred ,animated=True), plt.imshow(mask, animated=True, cmap='jet',alpha=0.2) ] for pred,mask in zip(pred_progress_list,mask_progress_list) ]
+
+		ims = ims + [ims[-1] for _ in range(5)]
+		ani = animation.ArtistAnimation(fig, ims, interval=1000, repeat_delay=100000, blit=True)
+		writer = PillowWriter(fps=2)  
+
+		path = os.path.join(log_dir, "segmentation_progress.gif")
+		ani.save(path, writer=writer)  
+		#HTML(ani.to_jshtml())
 
 
 

@@ -1,9 +1,7 @@
-
-from IPython.display import display, HTML
 from torchvision import transforms
 
 import matplotlib.animation as animation  
-from IPython.display import HTML
+from IPython.display import display, HTML
 from matplotlib.animation import PillowWriter
 import imageio
 
