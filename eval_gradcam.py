@@ -1,6 +1,9 @@
 import argparse
 
 
+
+import tensorflow as tf
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 from plot_utils import ipyDisplay
 from graph_utils import estimate_graph_statistics
 from graph_utils import GraphItem, ConnectedComponentCV2, GraphItemLogs
@@ -50,7 +53,7 @@ def main(args):
         model = models.vgg16_bn(num_classes= 2)
         model.features[0] = nn.Conv2d(in_channels, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
 
-        target_layer = vgg.features[40]
+        target_layer = model.features[40]
 
         assert args.vgg_weights_path is not None and os.path.exists(args.vgg_weights_path), "Error: path to the vgg16 weights has not been given or does not exist."
 
