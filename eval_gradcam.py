@@ -55,9 +55,9 @@ def main(args):
         assert args.vgg_weights_path is not None and os.path.exists(args.vgg_weights_path), "Error: path to the vgg16 weights has not been given or does not exist."
 
         state_dict = torch.load(args.vgg_weights_path)
-		model.load_state_dict(state_dict)
-		device = torch.device("cpu" if not torch.cuda.is_available() else "cuda")
-		model.to(device)
+        model.load_state_dict(state_dict)
+        device = torch.device("cpu" if not torch.cuda.is_available() else "cuda")
+        model.to(device)
 
         (train_dataset, validation_dataset, test_dataset), (train_gen, validation_gen, test_gen) = datasetManager.init_train_val_split(0.1, 
                                                 batch_size=args.batch_size,
