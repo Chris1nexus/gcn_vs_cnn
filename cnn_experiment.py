@@ -52,6 +52,7 @@ def main(args):
         #model.fc = nn.Linear(in_features=512, out_features=out_channels, bias=True)
  
         # experiment run
+        print("CNN training started")
         loss_train, loss_validation, acc_train, acc_validation, test_accuracy, model = experiment_mgr.train_convnet(model, learning_rate=args.lr, 
                                                   batch_size=args.batch_size, img_train_transform=img_train_transform, seg_train_transform=seg_train_transform,
                                                   img_test_transform=img_test_transform,

@@ -56,8 +56,9 @@ def main(args):
                                                                   'augment':augment, 
                                                                   'augment_params_dict':augment_params_dict,
                                                                   'verbose_loss_acc': False}
-
+        print("Unet training started")
         loss_train, loss_validation, IOU_train, IOU_validation, IOU_test, unet, segmentation_progress, segmentation_progress_pred, segmentation_progress_true_mask = experiment_mgr.train_unet(unet, **kwargs_dict)
+        print("GCN training completed")
         plot_results(args, loss_train, loss_validation, IOU_train, IOU_validation, metric_name='IoU')
 					
 

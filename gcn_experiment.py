@@ -79,8 +79,9 @@ def main(args):
 						                                          'augment_params_dict':augment_params_dict,
 						                                          'verbose_loss_acc': True}
 
-						
+						print("UNet training started")						
 						loss_train, loss_validation, IOU_train, IOU_validation, IOU_test, unet, segmentation_progress, segmentation_progress_pred, segmentation_progress_true_mask = experiment_mgr.train_unet(unet, **kwargs_dict)
+						print("Unet training completed\n")
 						plot_results(args, loss_train, loss_validation, IOU_train, IOU_validation, metric_name='IoU')
 					
 
@@ -92,9 +93,11 @@ def main(args):
 				                                          'img_test_transform':img_test_transform,
 				                                          'seg_test_transform':seg_test_transform,
 				                                          'validation_split_size': 0.1}
+				print("Creating unet segmentation dataset")	
 				(train_pred_graphs, train_pred_graph_labels), (val_pred_graphs, val_pred_graph_labels), (test_pred_graphs, test_pred_graph_labels) = \
 				                                    experiment_mgr.get_segmented_masks_graph_items(unet,  
 				                                      **mask_pred_kwargs_dict)
+				print("Created segmentation dataset")
 
 				pred_segmentation_graph_dataset = train_pred_graphs + val_pred_graphs
 				pred_segmentation_graph_labels = train_pred_graph_labels + val_pred_graph_labels
@@ -117,7 +120,7 @@ def main(args):
 				sg_test, test_labels = RCCDatasetManager.make_stellargraph_dataset(out_of_sample_dataset_graph_items,  out_of_sample_dataset_graph_labels,
 				                                  loading_prompt_string=None)
 
-
+				print("GCN training started")
 				best_model, train_histories, train_acc_folds, val_acc_folds, test_acc_folds = experiment_mgr.train_sg_gcn( validation_size=0.1,    
 				                      train_sg_graphs=sg_train, train_graphs_labels=train_labels,
 				                      val_sg_graphs=None, val_graphs_labels=None,  
@@ -129,7 +132,7 @@ def main(args):
 				                      folds = 5,
 				                      n_repeats = 1,
 				                      verbose=True,verbose_epochs_accuracy=False)
-
+				print("GCN training completed")
 
 		else:
 				torch_train, train_labels = RCCDatasetManager.make_torch_graph_dataset(sample_dataset_graph_items, sample_dataset_graph_labels,
@@ -138,7 +141,7 @@ def main(args):
 				                                  loading_prompt_string=None)
 
 				gcn = GCN(hidden_channels=64, num_node_features=3, num_classes=2, dropout=0.2)
-
+				print("GCN training started")
 				best_model, train_acc_folds, val_acc_folds, test_acc_folds = experiment_mgr.train_torch_gcn( gcn, validation_size=0.1,   
 				                      train_torch_graphs=torch_train, train_graphs_labels=train_labels,
 				                      val_torch_graphs=None, val_graphs_labels=None,  
@@ -150,6 +153,7 @@ def main(args):
 				                      folds = 5,
 				                      n_repeats = 1,
 				                      verbose=True,verbose_epochs_accuracy=False)
+				print("GCN training completed")
 
 
 
