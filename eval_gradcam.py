@@ -3,7 +3,8 @@ import argparse
 
 
 import tensorflow as tf
-tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+import logging
+logging.getLogger('tensorflow').disabled = True
 from plot_utils import ipyDisplay
 from graph_utils import estimate_graph_statistics
 from graph_utils import GraphItem, ConnectedComponentCV2, GraphItemLogs
