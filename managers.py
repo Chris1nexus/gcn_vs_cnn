@@ -45,6 +45,20 @@ class RCCDatasetManager(object):
     X_TEST = "Test"
     PIL_GRAYSCALE = 'L'
     PIL_RGB  = 'RGB'
+
+    # rgb images channel means and standard deviations
+    img_means = (0.7297678 , 0.4809845 , 0.65480953)
+    img_var = (0.02753073, 0.04772836, 0.02944909)
+    img_std = np.sqrt(img_var)
+
+    # gray images channel means and standard deviations
+    gray_mean = (0.5709)
+    gray_std = np.sqrt(0.0433)
+
+    # graph features means and standard deviations
+    graph_cc_mean = np.array([ 12.66008916 , 12.10070891, 110.54037857])
+    graph_cc_std = np.array([ 5.04678162  ,4.65336656 ,72.05804868])
+
     def __init__(self, 
                  root_path,
                  download_dataset=False,
@@ -71,7 +85,9 @@ class RCCDatasetManager(object):
                 resize_dim=512,
                 verbose=False):
 
+        
         self.load_graphs = load_graphs
+
         
 
 
@@ -718,15 +734,6 @@ class RCCDatasetManager(object):
 class ExperimentManager(object):
 
   def __init__(self, datasetManager ):
-      self.img_means = (0.7297678 , 0.4809845 , 0.65480953)
-      self.var = (0.02753073, 0.04772836, 0.02944909)
-      self.img_std = np.sqrt(self.var)
-      self.gray_mean = (0.5709)
-      self.gray_std = np.sqrt(0.0433)
-
-      # for 512x512 images
-      self.graph_cc_mean = np.array([ 12.66008916 , 12.10070891, 110.54037857])
-      self.graph_cc_std = np.array([ 5.04678162  ,4.65336656 ,72.05804868])
 
       self.datasetManager = datasetManager
 
