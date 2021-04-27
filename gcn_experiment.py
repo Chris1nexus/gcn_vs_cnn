@@ -181,7 +181,7 @@ def plot_results(args, train_loss, val_loss, train_metric, val_metric, metric_na
 
 def setup_dataset(args, load_graphs=False):
     ROOT_PATH = args.images 
-    assert os.path.exists(ROOT_PATH), "Error: given path does not exist"
+    #assert os.path.exists(ROOT_PATH), "Error: given path does not exist"
     RESIZE_DIM = 512
     # dataset setup
     datasetManager = RCCDatasetManager(ROOT_PATH,
@@ -293,7 +293,7 @@ if __name__ == "__main__":
 
 
 
-    
+
     parser.add_argument(
         "--std",
         type=bool,
