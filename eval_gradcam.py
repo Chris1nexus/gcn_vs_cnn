@@ -84,7 +84,7 @@ def main(args):
 
 def save_gradcams(figures, args):
     for i, image in enumerate(figures):
-    	path = os.path.join(args.logs_dir, "gradcam_{}.png".format(i))
+        path = os.path.join(args.logs_dir, "gradcam_{}.png".format(i))
         image.savefig(path)     
 
 def setup_dataset(args):
