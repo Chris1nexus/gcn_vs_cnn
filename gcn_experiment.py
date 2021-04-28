@@ -173,6 +173,8 @@ def main(args):
 
         
 def plot_results(args, train_loss, val_loss, train_metric, val_metric, metric_name='accuracy'):
+        if not os.path.exists(args.weights_dir):
+            os.makedirs(args.weights_dir)
         img_file_path = os.path.join(args.weights_dir, args.weights_fname +"_train.png")
         fig = plt.figure(figsize=(12,4))
         loss_fig = fig.add_subplot(121)
