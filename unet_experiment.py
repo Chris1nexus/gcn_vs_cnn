@@ -70,7 +70,7 @@ def main(args):
                                                                   'seg_test_transform':seg_test_transform,
                                                                   'epochs':args.epochs,
                                                                   'log_weights_path':args.weights_dir,
-                                                                  'weights_filename':args.weight_fname,
+                                                                  'weights_filename':args.weights_fname,
                                                                   'augment':augment, 
                                                                   'augment_params_dict':augment_params_dict,
                                                                   'verbose_loss_acc': False}
