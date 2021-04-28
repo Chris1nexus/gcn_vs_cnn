@@ -123,46 +123,46 @@ def main(args):
 
 
 
-		if args.gcn_type == 'sg':
-				sg_train, train_labels = RCCDatasetManager.make_stellargraph_dataset(sample_dataset_graph_items, sample_dataset_graph_labels,
-				                                  loading_prompt_string=None)
-				sg_test, test_labels = RCCDatasetManager.make_stellargraph_dataset(out_of_sample_dataset_graph_items,  out_of_sample_dataset_graph_labels,
-				                                  loading_prompt_string=None)
+        if args.gcn_type == 'sg':
+                sg_train, train_labels = RCCDatasetManager.make_stellargraph_dataset(sample_dataset_graph_items, sample_dataset_graph_labels,
+                                                  loading_prompt_string=None)
+                sg_test, test_labels = RCCDatasetManager.make_stellargraph_dataset(out_of_sample_dataset_graph_items,  out_of_sample_dataset_graph_labels,
+                                                  loading_prompt_string=None)
 
-				print("GCN training started")
-				best_model, train_histories, train_acc_folds, val_acc_folds, test_acc_folds = experiment_mgr.train_sg_gcn( validation_size=0.1,    
-				                      train_sg_graphs=sg_train, train_graphs_labels=train_labels,
-				                      val_sg_graphs=None, val_graphs_labels=None,  
-				                      test_sg_graphs=sg_test, test_graphs_labels=test_labels,
-				                      cross_validation=True,
-				                      batch_size=args.batch_size,
-				                      learning_rate=args.lr,
-				                      epochs=args.epochs,
-				                      folds = 5,
-				                      n_repeats = 1,
-				                      verbose=True,verbose_epochs_accuracy=False)
-				print("GCN training completed")
+                print("GCN training started")
+                best_model, train_histories, train_acc_folds, val_acc_folds, test_acc_folds = experiment_mgr.train_sg_gcn( validation_size=0.1,    
+                                      train_sg_graphs=sg_train, train_graphs_labels=train_labels,
+                                      val_sg_graphs=None, val_graphs_labels=None,  
+                                      test_sg_graphs=sg_test, test_graphs_labels=test_labels,
+                                      cross_validation=True,
+                                      batch_size=args.batch_size,
+                                      learning_rate=args.lr,
+                                      epochs=args.epochs,
+                                      folds = 5,
+                                      n_repeats = 1,
+                                      verbose=True,verbose_epochs_accuracy=False)
+                print("GCN training completed")
 
-		else:
-				torch_train, train_labels = RCCDatasetManager.make_torch_graph_dataset(sample_dataset_graph_items, sample_dataset_graph_labels,
-				                                  loading_prompt_string=None)
-				torch_test, test_labels = RCCDatasetManager.make_torch_graph_dataset(out_of_sample_dataset_graph_items, out_of_sample_dataset_graph_labels,
-				                                  loading_prompt_string=None)
+        else:
+                torch_train, train_labels = RCCDatasetManager.make_torch_graph_dataset(sample_dataset_graph_items, sample_dataset_graph_labels,
+                                                  loading_prompt_string=None)
+                torch_test, test_labels = RCCDatasetManager.make_torch_graph_dataset(out_of_sample_dataset_graph_items, out_of_sample_dataset_graph_labels,
+                                                  loading_prompt_string=None)
 
-				gcn = GCN(hidden_channels=64, num_node_features=3, num_classes=2, dropout=0.2)
-				print("GCN training started")
-				best_model, train_acc_folds, val_acc_folds, test_acc_folds = experiment_mgr.train_torch_gcn( gcn, validation_size=0.1,   
-				                      train_torch_graphs=torch_train, train_graphs_labels=train_labels,
-				                      val_torch_graphs=None, val_graphs_labels=None,  
-				                      test_torch_graphs=torch_test, test_graphs_labels=test_labels,
-				                      cross_validation=True,
-				                      batch_size=args.batch_size,
-				                      learning_rate=args.lr,
-				                      epochs=args.epochs,
-				                      folds = 5,
-				                      n_repeats = 1,
-				                      verbose=True,verbose_epochs_accuracy=False)
-				print("GCN training completed")
+                gcn = GCN(hidden_channels=64, num_node_features=3, num_classes=2, dropout=0.2)
+                print("GCN training started")
+                best_model, train_acc_folds, val_acc_folds, test_acc_folds = experiment_mgr.train_torch_gcn( gcn, validation_size=0.1,   
+                                      train_torch_graphs=torch_train, train_graphs_labels=train_labels,
+                                      val_torch_graphs=None, val_graphs_labels=None,  
+                                      test_torch_graphs=torch_test, test_graphs_labels=test_labels,
+                                      cross_validation=True,
+                                      batch_size=args.batch_size,
+                                      learning_rate=args.lr,
+                                      epochs=args.epochs,
+                                      folds = 5,
+                                      n_repeats = 1,
+                                      verbose=True,verbose_epochs_accuracy=False)
+                print("GCN training completed")
 
 
 
