@@ -44,8 +44,8 @@ def main(args):
 
 
 
-		sample_dataset_graph_items sample_dataset_graph_labels = None
-		out_of_sample_dataset_graph_items, out_of_sample_dataset_graph_labels = None
+		sample_dataset_graph_items, sample_dataset_graph_labels = None, None
+		out_of_sample_dataset_graph_items, out_of_sample_dataset_graph_labels = None, None
 
 		if args.dataset == 'unet':
 				if args.format == 'rgb':

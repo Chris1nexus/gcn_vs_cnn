@@ -248,13 +248,13 @@ if __name__ == "__main__":
         "--std",
         type=bool,
         default=True,
-        help="standardize slide images according to the channel statistics",
+        help="standardize slide images according to the channel statistics (default: True)",
     )
     parser.add_argument(
         "--std-by-patient",
         type=bool,
         default=False,
-        help="compute mean and variance for each 'train' split patient\n and standardize each of their samples by their own statistics: test samples are standardized according to the average mean and pooled variance",
+        help="compute mean and variance for each 'train' split patient\n and standardize each of their samples by their own statistics: test samples are standardized according to the average mean and pooled variance (default: False)",
     )
     parser.add_argument(
         "--format",
@@ -273,20 +273,20 @@ if __name__ == "__main__":
         "--rand-rot",
         type=bool,
         default=False,
-        help="random rotations (90,180,270 degrees) data augmentation",
+        help="random rotations (90,180,270 degrees) data augmentation  (default: False)",
     )
     parser.add_argument(
         "--rand-crop",
         type=bool,
         default=False,
-        help="random crop and zoom (keep from 0.7 to 1.0 of the original image ) data augmentation"
+        help="random crop and zoom (keep from 0.7 to 1.0 of the original image ) data augmentation (default: False)"
     )
 
     parser.add_argument(
         "--rand-elastic-deform",
         type=bool,
         default=False,
-        help="elastic deformation:\n\t\t\t"+\
+        help="elastic deformation (default: False):\n\t\t\t"+\
                                             "alpha in [1,4]\n\t\t\t" +\
                                             "sigma in [0.07, 0.13]\n\t\t\t"+\
                                              "alpha affine in [0.07, 0.13]"
