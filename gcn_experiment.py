@@ -107,8 +107,13 @@ def main(args):
 				pred_segmentation_graph_dataset = train_pred_graphs + val_pred_graphs
 				pred_segmentation_graph_labels = train_pred_graph_labels + val_pred_graph_labels
 
+                sample_dataset_graph_items = pred_segmentation_graph_dataset
+                sample_dataset_graph_labels  = pred_segmentation_graph_labels
+                out_of_sample_dataset_graph_items = test_pred_graphs
+                out_of_sample_dataset_graph_labels = test_pred_graph_labels
+
 		else:				
-				sample_dataset_graph_items sample_dataset_graph_labels = datasetManager.sample_dataset_graph_items,datasetManager.sample_dataset_graph_labels
+				sample_dataset_graph_items, sample_dataset_graph_labels = datasetManager.sample_dataset_graph_items,datasetManager.sample_dataset_graph_labels
 				out_of_sample_dataset_graph_items, out_of_sample_dataset_graph_labels = datasetManager.out_of_sample_dataset_graph_items,datasetManager.out_of_sample_dataset_graph_labels
 
 
