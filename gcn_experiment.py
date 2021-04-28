@@ -73,7 +73,7 @@ def main(args):
                           'gauss_blur' : None,
                           'elastic_deform': None
                             }
-                        kwargs_dict = {'learning_rate':args.lr, 'batch_size':4, 'img_train_transform':img_train_transform, 'seg_train_transform':seg_train_transform,
+                        kwargs_dict = {'learning_rate':args.unet_lr, 'batch_size':4, 'img_train_transform':img_train_transform, 'seg_train_transform':seg_train_transform,
                                                                   'img_test_transform':img_test_transform,
                                                                   'seg_test_transform':seg_test_transform,
                                                                   'epochs':20,
@@ -303,6 +303,7 @@ if __name__ == "__main__":
         default=0.001,
         help="initial learning rate (default: 0.001)",
     )
+    
 
 
     parser.add_argument(
@@ -331,7 +332,12 @@ if __name__ == "__main__":
         help="(ONLY VALID IF unet dataset) Path to the weights of the trained unet model, else a unet will be trained with:\n\t\t lr=0.00005, batch_size=4, epochs=20"+\
         														"\n\t\t all remaining parameters are configurable by means of the available command line arguments" 
     )
-
+    parser.add_argument(
+        "--unet-lr",
+        type=float,
+        default=0.00005,
+        help="(ONLY VALID IF unet dataset) initial unet learning rate (default: 0.00005)",
+    )
 
 
 
