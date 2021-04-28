@@ -61,9 +61,9 @@ def main(args):
                 if args.state_dict_path is not None:
                         #assert args.state_dict_path is not None, "Error: must provide the path to the trained unet model weights"
                         state_dict = torch.load(args.state_dict_path)
-                        unet.load_state_dict(state_dict)
+                        model.load_state_dict(state_dict)
                         device = torch.device("cpu" if not torch.cuda.is_available() else "cuda")
-                        unet.to(device)
+                        model.to(device)
                 else:
 
                         log_weights_path = "./experiment_log_folder"
@@ -84,7 +84,7 @@ def main(args):
                                                                   'verbose_loss_acc': True}
 
                         print("UNet training started: storing results in '{}' ".format(log_weights_path))						
-                        loss_train, loss_validation, IOU_train, IOU_validation, IOU_test, unet, segmentation_progress, segmentation_progress_pred, segmentation_progress_true_mask = experiment_mgr.train_unet(unet, **kwargs_dict)
+                        loss_train, loss_validation, IOU_train, IOU_validation, IOU_test, model, segmentation_progress, segmentation_progress_pred, segmentation_progress_true_mask = experiment_mgr.train_unet(model, **kwargs_dict)
                         print("Unet training completed\n")
                         plot_results(args, loss_train, loss_validation, IOU_train, IOU_validation, metric_name='IoU')
                         plot_segmentation_progress(segmentation_progress, log_weights_path)
@@ -100,7 +100,7 @@ def main(args):
                                                           'validation_split_size': 0.1}
                 print("Creating unet segmentation dataset")	
                 (train_pred_graphs, train_pred_graph_labels), (val_pred_graphs, val_pred_graph_labels), (test_pred_graphs, test_pred_graph_labels) = \
-                                                    experiment_mgr.get_segmented_masks_graph_items(unet,  
+                                                    experiment_mgr.get_segmented_masks_graph_items(model,  
                                                       **mask_pred_kwargs_dict)
                 print("Created segmentation dataset")
 
