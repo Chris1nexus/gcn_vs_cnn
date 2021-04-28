@@ -29,92 +29,91 @@ from managers import RCCDatasetManager, ExperimentManager
 def main(args):
 
 
-		# dataset setup
-		if args.dataset == 'unet':
-			load_graphs = False
-			(img_train_transform, img_test_transform), (seg_train_transform, seg_test_transform) = setup_preprocessing(args)
-		else:
-			load_graphs = True
-		datasetManager = setup_dataset(args, load_graphs)
+        # dataset setup
+        if args.dataset == 'unet':
+            load_graphs = False
+            (img_train_transform, img_test_transform), (seg_train_transform, seg_test_transform) = setup_preprocessing(args)
+        else:
+            load_graphs = True
+        datasetManager = setup_dataset(args, load_graphs)
 
 
-		# experiment setup
-		experiment_mgr = ExperimentManager( datasetManager )
-
-
-
-
-		sample_dataset_graph_items, sample_dataset_graph_labels = None, None
-		out_of_sample_dataset_graph_items, out_of_sample_dataset_graph_labels = None, None
-
-		if args.dataset == 'unet':
-				if args.format == 'rgb':
-					in_channels = 3
-				else:
-					in_channels = 1
-				out_channels = 2
-				init_features = 64
-
-				resize_dim = 512
-				model = UNet(in_channels=in_channels, out_channels=out_channels, init_features=init_features)
-
-				if args.state_dict_path is not None:
-						#assert args.state_dict_path is not None, "Error: must provide the path to the trained unet model weights"
-						state_dict = torch.load(args.state_dict_path)
-						unet.load_state_dict(state_dict)
-						device = torch.device("cpu" if not torch.cuda.is_available() else "cuda")
-						unet.to(device)
-				else:
-
-						log_weights_path = "./experiment_log_folder"
-						weights_filename = "unet_weights.pt"
-						augment_params_dict = {'resized_crop': None,
-						'rotate' : {'prob':1.0,'angle_range': 30},
-						  'gauss_blur' : None,
-						  'elastic_deform': None
-						    }
-						kwargs_dict = {'learning_rate':args.lr, 'batch_size':4, 'img_train_transform':img_train_transform, 'seg_train_transform':seg_train_transform,
-						                                          'img_test_transform':img_test_transform,
-						                                          'seg_test_transform':seg_test_transform,
-						                                          'epochs':20,
-						                                          'log_weights_path':log_weights_path,
-						                                          'weights_filename':weights_filename,
-						                                          'augment':True, 
-						                                          'augment_params_dict':augment_params_dict,
-						                                          'verbose_loss_acc': True}
-
-						print("UNet training started: storing results in '{}' ".format(log_weights_path))						
-						loss_train, loss_validation, IOU_train, IOU_validation, IOU_test, unet, segmentation_progress, segmentation_progress_pred, segmentation_progress_true_mask = experiment_mgr.train_unet(unet, **kwargs_dict)
-						print("Unet training completed\n")
-						plot_results(args, loss_train, loss_validation, IOU_train, IOU_validation, metric_name='IoU')
-						plot_segmentation_progress(segmentation_progress, log_weights_path)
-					
+        # experiment setup
+        experiment_mgr = ExperimentManager( datasetManager )
 
 
 
-				mask_pred_kwargs_dict = {'batch_size': 4, 
-				                                          'img_train_transform':img_train_transform, 
-				                                          'seg_train_transform':seg_train_transform,
-				                                          'img_test_transform':img_test_transform,
-				                                          'seg_test_transform':seg_test_transform,
-				                                          'validation_split_size': 0.1}
-				print("Creating unet segmentation dataset")	
-				(train_pred_graphs, train_pred_graph_labels), (val_pred_graphs, val_pred_graph_labels), (test_pred_graphs, test_pred_graph_labels) = \
-				                                    experiment_mgr.get_segmented_masks_graph_items(unet,  
-				                                      **mask_pred_kwargs_dict)
-				print("Created segmentation dataset")
 
-				pred_segmentation_graph_dataset = train_pred_graphs + val_pred_graphs
-				pred_segmentation_graph_labels = train_pred_graph_labels + val_pred_graph_labels
+        sample_dataset_graph_items, sample_dataset_graph_labels = None, None
+        out_of_sample_dataset_graph_items, out_of_sample_dataset_graph_labels = None, None
 
+        if args.dataset == 'unet':
+                if args.format == 'rgb':
+                    in_channels = 3
+                else:
+                    in_channels = 1
+                out_channels = 2
+                init_features = 64
+
+                resize_dim = 512
+                model = UNet(in_channels=in_channels, out_channels=out_channels, init_features=init_features)
+
+                if args.state_dict_path is not None:
+                        #assert args.state_dict_path is not None, "Error: must provide the path to the trained unet model weights"
+                        state_dict = torch.load(args.state_dict_path)
+                        unet.load_state_dict(state_dict)
+                        device = torch.device("cpu" if not torch.cuda.is_available() else "cuda")
+                        unet.to(device)
+                else:
+
+                        log_weights_path = "./experiment_log_folder"
+                        weights_filename = "unet_weights.pt"
+                        augment_params_dict = {'resized_crop': None,
+                        'rotate' : {'prob':1.0,'angle_range': 30},
+                          'gauss_blur' : None,
+                          'elastic_deform': None
+                            }
+                        kwargs_dict = {'learning_rate':args.lr, 'batch_size':4, 'img_train_transform':img_train_transform, 'seg_train_transform':seg_train_transform,
+                                                                  'img_test_transform':img_test_transform,
+                                                                  'seg_test_transform':seg_test_transform,
+                                                                  'epochs':20,
+                                                                  'log_weights_path':log_weights_path,
+                                                                  'weights_filename':weights_filename,
+                                                                  'augment':True, 
+                                                                  'augment_params_dict':augment_params_dict,
+                                                                  'verbose_loss_acc': True}
+
+                        print("UNet training started: storing results in '{}' ".format(log_weights_path))						
+                        loss_train, loss_validation, IOU_train, IOU_validation, IOU_test, unet, segmentation_progress, segmentation_progress_pred, segmentation_progress_true_mask = experiment_mgr.train_unet(unet, **kwargs_dict)
+                        print("Unet training completed\n")
+                        plot_results(args, loss_train, loss_validation, IOU_train, IOU_validation, metric_name='IoU')
+                        plot_segmentation_progress(segmentation_progress, log_weights_path)
+
+
+
+
+                mask_pred_kwargs_dict = {'batch_size': 4, 
+                                                          'img_train_transform':img_train_transform, 
+                                                          'seg_train_transform':seg_train_transform,
+                                                          'img_test_transform':img_test_transform,
+                                                          'seg_test_transform':seg_test_transform,
+                                                          'validation_split_size': 0.1}
+                print("Creating unet segmentation dataset")	
+                (train_pred_graphs, train_pred_graph_labels), (val_pred_graphs, val_pred_graph_labels), (test_pred_graphs, test_pred_graph_labels) = \
+                                                    experiment_mgr.get_segmented_masks_graph_items(unet,  
+                                                      **mask_pred_kwargs_dict)
+                print("Created segmentation dataset")
+
+                pred_segmentation_graph_dataset = train_pred_graphs + val_pred_graphs
+                pred_segmentation_graph_labels = train_pred_graph_labels + val_pred_graph_labels
                 sample_dataset_graph_items = pred_segmentation_graph_dataset
                 sample_dataset_graph_labels  = pred_segmentation_graph_labels
                 out_of_sample_dataset_graph_items = test_pred_graphs
                 out_of_sample_dataset_graph_labels = test_pred_graph_labels
 
-		else:				
-				sample_dataset_graph_items, sample_dataset_graph_labels = datasetManager.sample_dataset_graph_items,datasetManager.sample_dataset_graph_labels
-				out_of_sample_dataset_graph_items, out_of_sample_dataset_graph_labels = datasetManager.out_of_sample_dataset_graph_items,datasetManager.out_of_sample_dataset_graph_labels
+        else:				
+                sample_dataset_graph_items, sample_dataset_graph_labels = datasetManager.sample_dataset_graph_items,datasetManager.sample_dataset_graph_labels
+                out_of_sample_dataset_graph_items, out_of_sample_dataset_graph_labels = datasetManager.out_of_sample_dataset_graph_items,datasetManager.out_of_sample_dataset_graph_labels
 
 
 
