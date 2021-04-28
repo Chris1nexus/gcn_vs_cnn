@@ -46,6 +46,9 @@ def main(args):
 
         augment_params_dict = setup_augmentation(args)
         augment = len(augment_params_dict) > 0
+
+         (img_train_transform, img_test_transform), (seg_train_transform, seg_test_transform) = setup_preprocessing(args)
+
         # experiment setup
         experiment_mgr = ExperimentManager( datasetManager )
 
