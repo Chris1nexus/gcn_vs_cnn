@@ -19,11 +19,13 @@ class ExperimentLogger(object):
 
 
 class GradcamLogger(object):
-  def __init__(self, figure, mapping, probabilities, ground_truth):
+  def __init__(self, figure, mapping, probabilities, ground_truth, img_path, seg_path):
     self.figure = figure
     self.mapping = mapping
     self.probabilities = probabilities
     self.ground_truth = ground_truth
+    self.img_path = img_path
+    self.seg_path = seg_path
 
 
 class OverlaySegmentationLogger(object):

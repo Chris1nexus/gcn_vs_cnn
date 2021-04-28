@@ -55,7 +55,9 @@ def test_classifier_gradcam(model, target_layer, dataloader,
     for idx in range(len(img)):
 
       cuda_img = img[idx].unsqueeze(0)
- 
+      curr_img_path, curr_seg_path = path_img[idx], path_seg[idx]
+
+
       confidence_proba = probabilities[idx]
 
       ground_truth = label[idx]
@@ -108,7 +110,7 @@ def test_classifier_gradcam(model, target_layer, dataloader,
       figures.append(fig)
       
       gradlog = GradcamLogger(fig, mapper_to_categorical.copy(), confidence_proba.cpu().detach().numpy().squeeze()
-                                  ,label[idx] )
+                                  ,label[idx],curr_img_path, curr_seg_path)
       gradcam_logs.append(gradlog)
       
     del img

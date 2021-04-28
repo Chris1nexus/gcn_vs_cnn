@@ -85,15 +85,15 @@ def main(args):
                                      st_deviations,
                                      gradcam_method= 'gradcam++')
 
-        save_gradcams(figures, args)
+        save_gradcams(gradcam_logs, args)
 
 def save_gradcams(figures, args):
     if not os.path.exists(args.logs_dir):
         os.makedirs(args.logs_dir)
 
     for i, image in enumerate(figures):
-        path = os.path.join(args.logs_dir, "gradcam_{}.png".format(i))
-        image.savefig(path)     
+        path = os.path.join(args.logs_dir, "{}.png".format(gradcam_logs.img_path) )
+        gradcam_logs.figure.savefig(path)     
 
 def setup_dataset(args):
     ROOT_PATH = args.images 
