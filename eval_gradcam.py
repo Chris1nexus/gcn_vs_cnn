@@ -91,9 +91,11 @@ def save_gradcams(gradcam_logs, args):
     if not os.path.exists(args.logs_dir):
         os.makedirs(args.logs_dir)
 
-    for i, image in enumerate(gradcam_logs):
-        path = os.path.join(args.logs_dir, "{}.png".format(gradcam_logs.img_path) )
-        gradcam_logs.figure.savefig(path)     
+    for i, gradcam_log in enumerate(gradcam_logs):
+        path = os.path.join(args.logs_dir, "{}.png".format(gradcam_log.img_path) )
+        description = f"image path: {gradcam_log.img_path}\n mask path: {gradcam_log.seg_path}"
+        gradcam_log.figure.text(.5, .02, description, ha='center')
+        gradcam_log.figure.savefig(path)     
 
 def setup_dataset(args):
     ROOT_PATH = args.images 
