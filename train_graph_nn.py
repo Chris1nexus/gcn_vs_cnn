@@ -18,12 +18,14 @@ def train_test_torch_gcn(model, X_torch_train, X_torch_validation, X_torch_test,
         for data in train_dataloader:  # Iterate in batches over the training dataset.
 
             out = model(data)  # Perform a single forward pass.
-          
+            
+            
             loss = criterion(out, data.y)  # Compute the loss.
             loss.backward()  # Derive gradients.
             optimizer.step()  # Update parameters based on gradients.
             optimizer.zero_grad()  # Clear gradients.
 
+            pred = out.argmax(dim=1)
             correct += int((pred == data.y).sum())  # Check against ground-truth labels.
             cumul_loss += loss.item()
             N += 1

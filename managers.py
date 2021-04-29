@@ -1279,8 +1279,8 @@ def get_pred_mask_graph_datasets(segmentation_model, train_dataloader, val_datal
   test_labels = y_test
 
   train_pred_graphs, train_pred_graph_labels = get_pred_graphs_dataset(training_dataset,training_labels,resize_dim, loading_prompt_string="train dataset segmentation_model masks ")
-  val_pred_graphs, val_pred_graph_labels = get_pred_graphs_dataset(val_dataset,val_labels,resize_dim, loading_prompt_string="train dataset segmentation_model masks ")
-  test_pred_graphs, test_pred_graph_labels = get_pred_graphs_dataset(test_dataset,test_labels,resize_dim, loading_prompt_string="train dataset segmentation_model masks ")
+  val_pred_graphs, val_pred_graph_labels = get_pred_graphs_dataset(val_dataset,val_labels,resize_dim, loading_prompt_string="validation dataset segmentation_model masks ")
+  test_pred_graphs, test_pred_graph_labels = get_pred_graphs_dataset(test_dataset,test_labels,resize_dim, loading_prompt_string="test dataset segmentation_model masks ")
   
   return (train_pred_graphs, train_pred_graph_labels), (val_pred_graphs, val_pred_graph_labels), (test_pred_graphs, test_pred_graph_labels)
 
