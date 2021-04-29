@@ -1105,11 +1105,11 @@ class ExperimentManager(object):
       train_history, train_metrics = train_fold(model, train_gen, val_gen, early_stopping, epochs)
       val_metrics = test_model(model, val_gen)
       test_metrics = test_model(model, test_gen)
-      train_accuracy_epochs = train_history.history['acc'])
-      val_accuracy_epochs = train_history.history['val_acc'])
+      train_accuracy_epochs = train_history.history['acc']
+      val_accuracy_epochs = train_history.history['val_acc']
   
-      train_loss_epochs = train_history.history['loss'])
-      val_loss_epochs = train_history.history['val_loss'])
+      train_loss_epochs = train_history.history['loss']
+      val_loss_epochs = train_history.history['val_loss']
       return model, train_accuracy_epochs, val_accuracy_epochs, train_loss_epochs, val_loss_epochs, [test_metrics['acc']]
 
 
