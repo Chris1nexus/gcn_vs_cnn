@@ -99,9 +99,9 @@ def save_gradcams(gradcam_logs, args):
 
     reference_file =  os.path.join(args.logs_dir, "reference_gradcam_logs.txt" )
     with open(reference_file, "w+") as outfile:
-        outfile.write("id;image_path;mask_path")
+        outfile.write("id;image_path;mask_path\n")
         for i, gradcam_log in enumerate(gradcam_logs):
-            outfile.write(f"{i};{gradcam_log.img_path};{gradcam_log.seg_path}" )
+            outfile.write(f"{i};{gradcam_log.img_path};{gradcam_log.seg_path}\n" )
 
 def setup_dataset(args):
     ROOT_PATH = args.images 
