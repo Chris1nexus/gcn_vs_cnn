@@ -88,7 +88,7 @@ def test_classifier_gradcam(model, target_layer, dataloader,
 
 
       fig = plt.figure(figsize=(14,10))
-      fig.
+ 
       gradcam_predicted = fig.add_subplot(121)
       gradcam_predicted.imshow(visualization_predicted)
       gradcam_predicted.imshow(curr_mask, cmap='jet', alpha=0.2)
