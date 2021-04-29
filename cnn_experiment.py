@@ -49,7 +49,7 @@ def main(args):
         model.features[0] = nn.Conv2d(in_channels, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
 
 
-        if args.cross_validate:
+        if args.cross_val:
                     
                     stratified_folds = model_selection.RepeatedStratifiedKFold(
                       n_splits=5, n_repeats=1
