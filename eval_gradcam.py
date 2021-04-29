@@ -87,11 +87,11 @@ def main(args):
 
         save_gradcams(gradcam_logs, args)
 
-def save_gradcams(figures, args):
+def save_gradcams(gradcam_logs, args):
     if not os.path.exists(args.logs_dir):
         os.makedirs(args.logs_dir)
 
-    for i, image in enumerate(figures):
+    for i, image in enumerate(gradcam_logs):
         path = os.path.join(args.logs_dir, "{}.png".format(gradcam_logs.img_path) )
         gradcam_logs.figure.savefig(path)     
 
