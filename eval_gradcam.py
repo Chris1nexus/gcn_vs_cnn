@@ -94,7 +94,7 @@ def save_gradcams(gradcam_logs, args):
     for i, gradcam_log in enumerate(gradcam_logs):
         path = os.path.join(args.logs_dir, "gradcam_log_{}.png".format(i) )
         description = f"image path: {gradcam_log.img_path}\n mask path: {gradcam_log.seg_path}"
-        gradcam_log.figure.xlabel(description)#text(.5, .02, description, ha='center')
+        gradcam_log.figure.text(.5, .001, description, ha='center')
         gradcam_log.figure.savefig(path)     
 
 def setup_dataset(args):

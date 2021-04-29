@@ -49,7 +49,7 @@ def test_classifier_gradcam(model, target_layer, dataloader,
     y_pred_binarized = probabilities.argmax(dim=1)
     
     corrects = torch.sum(y_pred_binarized == label).data.item() 
-   
+
     
     for idx in range(len(img)):
 
@@ -88,12 +88,13 @@ def test_classifier_gradcam(model, target_layer, dataloader,
 
 
       fig = plt.figure(figsize=(14,10))
-      gradcam_predicted = fig.add_subplot(131)
+      fig.
+      gradcam_predicted = fig.add_subplot(121)
       gradcam_predicted.imshow(visualization_predicted)
       gradcam_predicted.imshow(curr_mask, cmap='jet', alpha=0.2)
       gradcam_predicted.title.set_text('ROI of the prediction: ' + str(mapper_to_categorical[predicted]) + " probability=%.1f"%(confidence_proba[predicted]*100) \
                                        + "%\n" + correct_prediction_str + " prediction")
-      raw = fig.add_subplot(132)
+      raw = fig.add_subplot(122)
 
       if 1 in rgb_img.shape:
         raw.imshow(rgb_img.squeeze(), cmap='gray')
@@ -106,6 +107,7 @@ def test_classifier_gradcam(model, target_layer, dataloader,
       #gradcam_not_predicted.title.set_text('ROI of the excluded prediction: '+ str(mapper_to_categorical[not_predicted]) )
       #fig.canvas.draw()
       #pil_img = Image.frombytes('RGB', fig.canvas.get_width_height(),fig.canvas.tostring_rgb())
+      fig.tight_layout()
       figures.append(fig)
       
       gradlog = GradcamLogger(fig, mapper_to_categorical.copy(), confidence_proba.cpu().detach().numpy().squeeze()
