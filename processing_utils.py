@@ -15,7 +15,7 @@ from graph_utils import GraphItem, GraphItemLogs, ConnectedComponentCV2
 from image_utils import remove_isolated, is_on
 import matplotlib.pyplot as plt
 import imageio
-
+import skimage 
 
 
 
@@ -119,7 +119,7 @@ class ToGraphTransform(object):
         #cv2plot(image)
         # obtain skeleton of original image in order to obtain a minimal representation
         # of the connections between nodes
-        skel = self.get_skeleton_image(image)
+        skel = skimage.morphology.skeletonize(image)#self.get_skeleton_image(image)
         logger['2:op_skeletonize'] = skel 
         # remove isolated white pixels (isolation is checked by controlling the 8 neighborhood around a white pixel )
         cleaned_skel = remove_isolated(skel)
