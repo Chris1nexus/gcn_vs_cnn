@@ -119,7 +119,7 @@ class ToGraphTransform(object):
         #cv2plot(image)
         # obtain skeleton of original image in order to obtain a minimal representation
         # of the connections between nodes
-        skel = (skeletonize(image//255)*255)astype(np.uint8)#self.get_skeleton_image(image)
+        skel = (skeletonize(image//255)*255).astype(np.uint8)#self.get_skeleton_image(image)
         logger['2:op_skeletonize'] = skel 
         # remove isolated white pixels (isolation is checked by controlling the 8 neighborhood around a white pixel )
         cleaned_skel = remove_isolated(skel)
