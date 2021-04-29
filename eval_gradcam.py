@@ -101,7 +101,7 @@ def save_gradcams(gradcam_logs, args):
     with open(reference_file, "w+") as outfile:
         outfile.write("id;image_path;mask_path")
         for i, gradcam_log in enumerate(gradcam_logs):
-            reference_file.write(f"{i};{gradcam_log.img_path};{gradcam_log.seg_path}" )
+            outfile.write(f"{i};{gradcam_log.img_path};{gradcam_log.seg_path}" )
 
 def setup_dataset(args):
     ROOT_PATH = args.images 
