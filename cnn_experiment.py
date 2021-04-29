@@ -48,7 +48,7 @@ def main(args):
         model = models.vgg16_bn(num_classes= 2)
         model.features[0] = nn.Conv2d(in_channels, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
 
-        
+
         if args.cross_validate:
                     
                     stratified_folds = model_selection.RepeatedStratifiedKFold(
@@ -260,6 +260,12 @@ if __name__ == "__main__":
         type=float,
         default=0.0001,
         help="initial learning rate (default: 0.001)",
+    )
+    parser.add_argument(
+        "--cross-val",
+        type=bool,
+        default=False,
+        help="Perform 5-fold cross-validation: [True,False] (default to False)",
     )
 
 
