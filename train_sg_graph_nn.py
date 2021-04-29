@@ -40,12 +40,3 @@ def create_graph_classification_model(generator, hidden_layer_sizes=(64, 64, 64,
 
     return model
 
-def train_fold(model, train_gen, test_gen, es, epochs):
-    history = model.fit(
-        train_gen, epochs=epochs, validation_data=test_gen, verbose=0, callbacks=[es],
-    )
-    # calculate performance on the test data and return along with history
-    test_metrics = model.evaluate(test_gen, verbose=0)
-    test_acc = test_metrics[model.metrics_names.index("acc")]
-
-    return history, test_acc

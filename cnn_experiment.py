@@ -19,7 +19,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from torchvision import models
 import matplotlib.pyplot as plt
-
+import sys
 
 
 def main(args):
@@ -43,33 +43,113 @@ def main(args):
             in_channels = 3
         else:
             in_channels = 1
-        #model =  torch.hub.load('pytorch/vision:v0.9.0', 'vgg', pretrained=False,num_classes=2)
+
+
         model = models.vgg16_bn(num_classes= 2)
         model.features[0] = nn.Conv2d(in_channels, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
 
-        #model = resnet50(pretrained=False, num_classes=2)
-        #model.fc = nn.Linear(in_features=2048, out_features=out_channels, bias=True)
-        #model = torchvision.models.resnet18()#torch.hub.load('pytorch/vision:v0.9.0', 'resnet50', pretrained=False)
-        #model.fc = nn.Linear(in_features=512, out_features=out_channels, bias=True)
- 
-        # experiment run
-        print("CNN training started")
-        loss_train, loss_validation, acc_train, acc_validation, test_accuracy, model = experiment_mgr.train_convnet(model, learning_rate=args.lr, 
-                                                  batch_size=args.batch_size, img_train_transform=img_train_transform, seg_train_transform=seg_train_transform,
-                                                  img_test_transform=img_test_transform,
-                                                  seg_test_transform=seg_test_transform,
+        
+        if args.cross_validate:
+                    
+                    stratified_folds = model_selection.RepeatedStratifiedKFold(
+                      n_splits=5, n_repeats=1
+                        ).split(datasetManager.sample_dataset.y_labels, datasetManager.sample_dataset.y_labels)
+
+
+                    train_acc_folds = []
+                    val_acc_folds = []
+                    test_acc_folds = []
+
+                    train_loss_folds = []
+                    val_loss_folds = []
+                    test_loss_folds = []
+
+
+                    best_model = model
+                    min_loss = sys.float_info.max
+                    for i, (train_index, validation_index) in enumerate(stratified_folds):
+                          print(f"Fold {i+1} of {folds}")
+                          curr_model = copy.deepcopy(model)
+                
+                          (train_dataset, validation_dataset, test_dataset), _ = datasetManager.init_train_val_split( 
+                                                                img_train_transform = img_train_transform,
+                                                            seg_train_transform = seg_train_transform,
+                                                              img_test_transform = img_test_transform,
+                                                            seg_test_transform = seg_test_transform,
+                                                         
+                                                                  batch_size=args.batch_size,
+                                                                    train_indices = train_index,
+                                                                    validation_indices = validation_index,
+                                                         
+                                                                    train_augment=augment,
+                                                                        **augment_params_dict)
+                          train_dataloader = DataLoader( train_dataset , batch_size=args.batch_size, shuffle=True, num_workers=args.workers)
+                          val_dataloader = DataLoader(validation_dataset , batch_size=args.batch_size, shuffle=True, num_workers=args.workers)
+                          test_dataloader = DataLoader( test_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.workers)
+
+                          curr_fold_weights_fname = f"fold_{i}_" + args.weights_fname
+                          loss_train, loss_validation, acc_train, acc_validation, test_accuracy, model = experiment_mgr.train_convnet(model, learning_rate=args.lr, 
+                                                  batch_size=args.batch_size, 
+                                                  train_dataloader=train_dataloader, val_dataloader=val_dataloader, test_dataloader=test_dataloader,
                                                   epochs=args.epochs,
                                                   log_weights_path=args.weights_dir,
-                                                  weights_filename=args.weights_fname,
+                                                  weights_filename=curr_fold_weights_fname,
                                                   augment=augment, augment_params_dict=augment_params_dict,
                                                    verbose=False)
+                    
+                          train_acc_folds.append(acc_train)
+                          val_acc_folds.append(acc_validation)
+              
 
-        # save results
-        plot_results(args, loss_train, loss_validation, acc_train, acc_validation, metric_name='accuracy')
+                          train_loss_folds.append(loss_train)
+                          val_loss_folds.append(loss_validation)
+                         
+                          test_acc_folds.append( test_accuracy[-1])
+
+                          print(f"validation accuracy: {acc_validation[-1]}")
+                          if loss_validation[-1] <  min_loss:
+                            min_loss = loss_validation[-1]
+                            best_model = curr_model
+                            torch.save(best_model.state_dict(), os.path.join(args.weights_dir, "best_model_" + args.weights_fname))
+                    train_acc_folds_average = np.array(train_acc_folds).mean(axis=0)
+                    val_acc_folds_average = np.array(val_acc_folds).mean(axis=0)
+                    #test_acc_folds_average = np.array(test_acc_folds).mean(axis=0)
+
+                    train_loss_folds_average = np.array(train_loss_folds).mean(axis=0)
+                    val_loss_folds_average = np.array(val_loss_folds).mean(axis=0)
+                    #test_loss_folds_average = np.array(test_loss_folds).mean(axis=0)
+                    img_file_path = os.path.join(args.weights_dir, args.weights_fname +"_train.png")
+                    plot_results(img_file_path, train_loss_folds_average, val_loss_folds_average, train_acc_folds_average, val_acc_folds_average, metric_name='accuracy')
+
+                    #best_model, train_acc_folds_average, val_acc_folds_average, train_loss_folds_average, val_loss_folds_average, test_acc_folds
+        #model =  torch.hub.load('pytorch/vision:v0.9.0', 'vgg', pretrained=False,num_classes=2)
+        else:
+                    #model = models.vgg16_bn(num_classes= 2)
+                    #model.features[0] = nn.Conv2d(in_channels, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+
+                    #model = resnet50(pretrained=False, num_classes=2)
+                    #model.fc = nn.Linear(in_features=2048, out_features=out_channels, bias=True)
+                    #model = torchvision.models.resnet18()#torch.hub.load('pytorch/vision:v0.9.0', 'resnet50', pretrained=False)
+                    #model.fc = nn.Linear(in_features=512, out_features=out_channels, bias=True)
+             
+                    # experiment run
+                    print("CNN training started")
+                    loss_train, loss_validation, acc_train, acc_validation, test_accuracy, model = experiment_mgr.train_convnet(model, learning_rate=args.lr, 
+                                                              batch_size=args.batch_size, img_train_transform=img_train_transform, seg_train_transform=seg_train_transform,
+                                                              img_test_transform=img_test_transform,
+                                                              seg_test_transform=seg_test_transform,
+                                                              epochs=args.epochs,
+                                                              log_weights_path=args.weights_dir,
+                                                              weights_filename=args.weights_fname,
+                                                              augment=augment, augment_params_dict=augment_params_dict,
+                                                               verbose=False)
+
+                    # save results
+                    img_file_path = os.path.join(args.weights_dir, args.weights_fname +"_train.png")
+                    plot_results(img_file_path, loss_train, loss_validation, acc_train, acc_validation, metric_name='accuracy')
 
 
-def plot_results(args, train_loss, val_loss, train_metric, val_metric, metric_name='accuracy'):
-        img_file_path = os.path.join(args.weights_dir, args.weights_fname +"_train.png")
+def plot_results(img_file_path, train_loss, val_loss, train_metric, val_metric, metric_name='accuracy'):
         fig = plt.figure(figsize=(12,4))
         loss_fig = fig.add_subplot(121)
         loss_fig.plot(train_loss)

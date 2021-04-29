@@ -20,7 +20,7 @@ from graph_utils import GraphItem, ConnectedComponentCV2, GraphItemLogs
 from image_utils import is_on, remove_isolated
 from processing_utils import UnNormalize
 from processing_utils import ToGraphTransform
-from neural_nets import UNet
+from neural_nets import UNet, GCN
 from managers import RCCDatasetManager, ExperimentManager
 
 
@@ -130,7 +130,7 @@ def main(args):
                                                   loading_prompt_string=None)
 
                 print("GCN training started")
-                best_model, train_histories, train_acc_folds, val_acc_folds, test_acc_folds = experiment_mgr.train_sg_gcn( validation_size=0.1,    
+                best_model, train_acc_folds_average, val_acc_folds_average, train_loss_folds_average, val_loss_folds_average, test_acc_folds= experiment_mgr.train_sg_gcn( validation_size=0.1,    
                                       train_sg_graphs=sg_train, train_graphs_labels=train_labels,
                                       val_sg_graphs=None, val_graphs_labels=None,  
                                       test_sg_graphs=sg_test, test_graphs_labels=test_labels,
@@ -142,7 +142,7 @@ def main(args):
                                       n_repeats = 1,
                                       verbose=True,verbose_epochs_accuracy=False)
                 print("GCN training completed")
-
+                plot_results(args, train_loss_folds_average, val_loss_folds_average, train_acc_folds_average, val_acc_folds_average, metric_name='accuracy')
         else:
                 torch_train, train_labels = RCCDatasetManager.make_torch_graph_dataset(sample_dataset_graph_items, sample_dataset_graph_labels,
                                                   loading_prompt_string=None)
@@ -151,7 +151,7 @@ def main(args):
 
                 gcn = GCN(hidden_channels=64, num_node_features=3, num_classes=2, dropout=0.2)
                 print("GCN training started")
-                best_model, train_acc_folds, val_acc_folds, test_acc_folds = experiment_mgr.train_torch_gcn( gcn, validation_size=0.1,   
+                best_model, train_acc_folds_average, val_acc_folds_average, train_loss_folds_average, val_loss_folds_average, test_acc_folds = experiment_mgr.train_torch_gcn( gcn, validation_size=0.1,   
                                       train_torch_graphs=torch_train, train_graphs_labels=train_labels,
                                       val_torch_graphs=None, val_graphs_labels=None,  
                                       test_torch_graphs=torch_test, test_graphs_labels=test_labels,
@@ -163,6 +163,7 @@ def main(args):
                                       n_repeats = 1,
                                       verbose=True,verbose_epochs_accuracy=False)
                 print("GCN training completed")
+                plot_results(args, train_loss_folds_average, val_loss_folds_average, train_acc_folds_average, val_acc_folds_average, metric_name='accuracy')
 
 
 

@@ -7,9 +7,9 @@ class ExperimentLogger(object):
   def __init__(self):
     self.log_dictionary = {}
   
-  def log(self, key_name, values):
+  def log(self, key_name, value):
     assert self.log_dictionary.get(key_name, None) is None, "Error: key has already been inserted"
-    self.log_dictionary[key_name] = values
+    self.log_dictionary[key_name] = value
   
   def keys(self):
     return self.log_dictionary.keys()

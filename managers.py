@@ -23,6 +23,7 @@ from itertools import groupby
 from functools import  reduce
 from operator import itemgetter
 import matplotlib.pyplot as plt
+import sys
 
 
 from utils import DriveDownloader, recursive_visit
@@ -37,6 +38,8 @@ from train_graph_nn import train_test_torch_gcn
 from train_sg_graph_nn import create_graph_classification_model
 from metrics import IoU
 from image_utils import read_image
+from log_utils import ExperimentLogger
+
 
 
 class RCCDatasetManager(object):
@@ -221,7 +224,7 @@ class RCCDatasetManager(object):
     
 
         
-    def init_train_val_split(self, validation_size, 
+    def init_train_val_split(self, validation_size=0.1, 
                                     img_train_transform = None,
                                 seg_train_transform = None,
                                   img_test_transform = None,
@@ -874,11 +877,18 @@ class ExperimentManager(object):
           n_splits=folds, n_repeats=n_repeats
             ).split(train_graphs_labels, train_graphs_labels)
 
+
         train_acc_folds = []
         val_acc_folds = []
         test_acc_folds = []
+
+        train_loss_folds = []
+        val_loss_folds = []
+        test_loss_folds = []
+
+
         best_model = model
-        best_acc = 0.
+        min_loss = sys.float_info.max
         for i, (train_index, validation_index) in enumerate(stratified_folds):
               print(f"Fold {i+1} of {folds}")
               curr_model = copy.deepcopy(model)
@@ -886,19 +896,37 @@ class ExperimentManager(object):
               (X_torch_train,y_torch_train), (X_torch_validation,y_torch_validation), (X_torch_test,y_torch_test) = torch_geom_train_val_test_split(validation_size, train_torch_graphs, train_graphs_labels,
                                               test_torch_graphs, test_graphs_labels,
                                               train_index, validation_index)    
-              train_acc_epochs, val_acc_epochs, test_acc_epochs = train_test_torch_gcn(curr_model, X_torch_train, X_torch_validation, X_torch_test, batch_size=batch_size,
+              train_acc_epochs, val_acc_epochs, test_acc_epochs, train_loss_epochs, val_loss_epochs, test_loss_epochs = train_test_torch_gcn(curr_model, X_torch_train, X_torch_validation, X_torch_test, batch_size=batch_size,
                                 learning_rate=learning_rate,
                                 epochs=epochs,
                                 verbose=verbose,
                                 verbose_epochs_accuracy=verbose_epochs_accuracy)
-              train_acc_folds.append(np.mean(train_acc_epochs))
-              val_acc_folds.append(np.mean(val_acc_epochs))
-              test_acc_folds.append(np.mean(test_acc_epochs))
-              print(f"validation accuracy: {val_acc_folds[-1]}")
-              if test_acc_folds[-1] > best_acc:
-                best_acc = test_acc_folds[-1]
-                best_model = curr_model
-        return best_model, train_acc_folds, val_acc_folds, test_acc_folds
+              #train_acc_folds.append(np.mean(train_acc_epochs))
+              #val_acc_folds.append(np.mean(val_acc_epochs))
+              #test_acc_folds.append(np.mean(test_acc_epochs))
+              train_acc_folds.append(train_acc_epochs)
+              val_acc_folds.append(val_acc_epochs)
+              #test_acc_folds.append(test_acc_epochs)
+
+              train_loss_folds.append(train_loss_epochs)
+              val_loss_folds.append(val_loss_epochs)
+              #test_loss_folds.append(test_loss_epochs)
+              test_acc_folds.append( test_acc_folds[-1])
+
+              print(f"validation accuracy: {val_acc_epochs[-1]}")
+              if val_loss_epochs[-1] <  min_loss:
+                    min_loss = val_loss_epochs[-1]
+                    best_model = curr_model
+
+        train_acc_folds_average = np.array(train_acc_folds).mean(axis=0)
+        val_acc_folds_average = np.array(val_acc_folds).mean(axis=0)
+        #test_acc_folds_average = np.array(test_acc_folds).mean(axis=0)
+
+        train_loss_folds_average = np.array(train_loss_folds).mean(axis=0)
+        val_loss_folds_average = np.array(val_loss_folds).mean(axis=0)
+        #test_loss_folds_average = np.array(test_loss_folds).mean(axis=0)
+
+        return best_model, train_acc_folds_average, val_acc_folds_average, train_loss_folds_average, val_loss_folds_average, test_acc_folds
     else:
       assert not (val_torch_graphs is None ^ val_graphs_labels is None), "Error, val_graphs and val_labels must either be: both None or both allocated"
       
@@ -912,12 +940,12 @@ class ExperimentManager(object):
       else:
         (X_torch_train,y_torch_train), (X_torch_validation,y_torch_validation), (X_torch_test,y_torch_test) = train_torch_graphs, val_torch_graphs, test_torch_graphs
       curr_model = copy.deepcopy(model)
-      train_acc_epochs, val_acc_epochs, test_acc_epochs = train_test_torch_gcn(model, X_torch_train, X_torch_validation, X_torch_test, batch_size=batch_size,
+      train_acc_epochs, val_acc_epochs, test_acc_epochs, train_loss_epochs, val_loss_epochs, test_loss_epochs = train_test_torch_gcn(model, X_torch_train, X_torch_validation, X_torch_test, batch_size=batch_size,
                                 learning_rate=learning_rate,
                                 epochs=epochs,
                                 verbose=verbose,
                                 verbose_epochs_accuracy=verbose_epochs_accuracy)
-      return curr_model, train_acc_epochs, val_acc_epochs, test_acc_epochs
+      return curr_model, train_acc_epochs, val_acc_epochs, train_loss_epochs, val_loss_epochs, test_loss_epochs[-1]
 
 
 
@@ -939,15 +967,15 @@ class ExperimentManager(object):
               train_gen, epochs=epochs, validation_data=test_gen, verbose=0, callbacks=[es],
           )
           # calculate performance on the test data and return along with history
-          test_metrics = model.evaluate(test_gen, verbose=0)
-          test_acc = test_metrics[model.metrics_names.index("acc")]
+          test_metrics = model.evaluate(test_gen, verbose=0, return_dict=True)
+          #test_acc = test_metrics[model.metrics_names.index("acc")]
 
-          return history, test_acc
+          return history, test_metrics
     def test_model(model, test_gen):
-          test_metrics = model.evaluate(test_gen, verbose=0)
-          test_acc = test_metrics[model.metrics_names.index("acc")]
+          test_metrics = model.evaluate(test_gen, verbose=0, return_dict=True)
+          #test_acc = test_metrics[model.metrics_names.index("acc")]
 
-          return test_acc
+          return test_metrics
     # if cross validation, desired behavior is to not have validation graphs provided, since these will be constructed through cross validation
     if cross_validation:
         assert val_sg_graphs is None and val_graphs_labels is None ,  "Error: during cross validaton, the validation set is taken from a partition of the training data"
@@ -966,9 +994,21 @@ class ExperimentManager(object):
         train_acc_folds = []
         val_acc_folds = []
         test_acc_folds = []
+        train_acc_folds = []
+        val_acc_folds = []
+        test_acc_folds = []
+
+
+        train_acc_folds = []
+        val_acc_folds = []
+        #test_acc_folds = []
+
+        train_loss_folds = []
+        val_loss_folds = []
+        #test_loss_folds = []
         
         best_model = None
-        best_acc = 0.
+        min_loss = sys.float_info.max
         train_padder_gen = PaddedGraphGenerator(train_sg_graphs)
         test_padder_gen = PaddedGraphGenerator(test_sg_graphs)
         for i, (train_index, validation_index) in enumerate(stratified_folds):
@@ -990,31 +1030,32 @@ class ExperimentManager(object):
               model = create_graph_classification_model(train_padder_gen)
 
               # train and evaluate
-              train_history, val1_acc = train_fold(model, train_gen, val_gen, early_stopping, epochs)
-              val_acc = test_model(model, val_gen)
-              test_acc = test_model(model, test_gen)
+              train_history, train_metrics = train_fold(model, train_gen, val_gen, early_stopping, epochs)
+              val_metrics = test_model(model, val_gen)
+              test_metrics = test_model(model, test_gen)
 
-              # log results of current fold
-              train_histories.append(train_history)
-              train_acc_folds.append(val1_acc)
-              val_acc_folds.append(val_acc)
-              test_acc_folds.append(test_acc)
-              plt.plot(train_history.history['acc'])
-              plt.plot(train_history.history['val_acc'])
-              plt.title('model accuracy')
-              plt.ylabel('accuracy')
-              plt.xlabel('epoch')
-              plt.legend(['train', 'validation'], loc='upper left')
-              plt.show()
-              
+              train_acc_folds.append(train_history.history['acc'])
+              val_acc_folds.append(train_history.history['val_acc'])
 
-              if test_acc_folds[-1] > best_acc:
-                best_acc = test_acc_folds[-1]
+              train_loss_folds.append(train_history.history['loss'])
+              val_loss_folds.append(train_history.history['val_loss'])
+
+              test_acc_folds.append(test_metrics['acc'])
+
+      
+           
+
+              if test_metrics['loss'] < min_loss:
+                min_loss = test_metrics['loss']
                 best_model = model
-        
-        
+        train_acc_folds_average = np.array(train_acc_folds).mean(axis=0)
+        val_acc_folds_average = np.array(val_acc_folds).mean(axis=0)
+     
+        train_loss_folds_average = np.array(train_loss_folds).mean(axis=0)
+        val_loss_folds_average = np.array(val_loss_folds).mean(axis=0)
 
-        return best_model, train_histories, train_acc_folds, val_acc_folds, test_acc_folds
+
+        return best_model, train_acc_folds_average, val_acc_folds_average, train_loss_folds_average, val_loss_folds_average, test_acc_folds
     else:
       assert not (val_sg_graphs is None ^ val_graphs_labels is None), "Error, val_graphs and val_labels must either be: both None or both allocated"
       
@@ -1061,12 +1102,15 @@ class ExperimentManager(object):
       model = create_graph_classification_model(train_padder_gen)
 
       # train and evaluate
-      train_history, train_acc = train_model(model, train_gen, val_gen, early_stopping, epochs)
-      val_acc = test_model(model, val_gen)
-      test_acc = test_model(model, test_gen)
-
-     
-      return model, train_history, train_acc, val_acc, test_acc
+      train_history, train_metrics = train_fold(model, train_gen, val_gen, early_stopping, epochs)
+      val_metrics = test_model(model, val_gen)
+      test_metrics = test_model(model, test_gen)
+      train_accuracy_epochs = train_history.history['acc'])
+      val_accuracy_epochs = train_history.history['val_acc'])
+  
+      train_loss_epochs = train_history.history['loss'])
+      val_loss_epochs = train_history.history['val_loss'])
+      return model, train_accuracy_epochs, val_accuracy_epochs, train_loss_epochs, val_loss_epochs, [test_metrics['acc']]
 
 
   # graph 
