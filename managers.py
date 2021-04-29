@@ -911,7 +911,7 @@ class ExperimentManager(object):
               train_loss_folds.append(train_loss_epochs)
               val_loss_folds.append(val_loss_epochs)
               #test_loss_folds.append(test_loss_epochs)
-              test_acc_folds.append( test_acc_folds[-1])
+              test_acc_folds.append( test_acc_epochs[-1])
 
               print(f"validation accuracy: {val_acc_epochs[-1]}")
               if val_loss_epochs[-1] <  min_loss:
@@ -945,7 +945,7 @@ class ExperimentManager(object):
                                 epochs=epochs,
                                 verbose=verbose,
                                 verbose_epochs_accuracy=verbose_epochs_accuracy)
-      return curr_model, train_acc_epochs, val_acc_epochs, train_loss_epochs, val_loss_epochs, test_loss_epochs[-1]
+      return curr_model, train_acc_epochs, val_acc_epochs, train_loss_epochs, val_loss_epochs, [test_acc_epochs[-1]]
 
 
 
