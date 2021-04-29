@@ -51,9 +51,9 @@ def main(args):
 
 
         if args.cross_val:
-                    
+                    folds = 5
                     stratified_folds = model_selection.RepeatedStratifiedKFold(
-                      n_splits=5, n_repeats=1
+                      n_splits=folds, n_repeats=1
                         ).split(datasetManager.sample_dataset.y_labels, datasetManager.sample_dataset.y_labels)
 
 
