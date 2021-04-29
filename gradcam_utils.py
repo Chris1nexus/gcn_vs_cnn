@@ -49,8 +49,7 @@ def test_classifier_gradcam(model, target_layer, dataloader,
     y_pred_binarized = probabilities.argmax(dim=1)
     
     corrects = torch.sum(y_pred_binarized == label).data.item() 
-    print(path_img)
-
+   
     
     for idx in range(len(img)):
 

@@ -92,7 +92,7 @@ def save_gradcams(gradcam_logs, args):
         os.makedirs(args.logs_dir)
 
     for i, gradcam_log in enumerate(gradcam_logs):
-        path = os.path.join(args.logs_dir, "{}.png".format(gradcam_log.img_path) )
+        path = os.path.join(args.logs_dir, "gradcam_log_{}.png".format(i) )
         description = f"image path: {gradcam_log.img_path}\n mask path: {gradcam_log.seg_path}"
         gradcam_log.figure.text(.5, .02, description, ha='center')
         gradcam_log.figure.savefig(path)     
