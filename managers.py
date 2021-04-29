@@ -106,6 +106,8 @@ class RCCDatasetManager(object):
             # root path is NOT none and (it does not contain vascular segmentation OR it does not exist)
             # we download the dataset on the folder
             self.__download_dataset__(drive_file_id, tmp_destination, target_directory)
+          else:
+            target_path = root_path
           self.root_path = target_path
         else:
           assert root_path is not None and "vascular_segmentation" in root_path, "Error: root path must point to the 'vascular_segmentation' folder"
