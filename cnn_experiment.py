@@ -20,7 +20,8 @@ from torch.utils.data import DataLoader
 from torchvision import models
 import matplotlib.pyplot as plt
 import sys
-
+from sklearn import model_selection
+import copy
 
 def main(args):
 
@@ -143,7 +144,7 @@ def main(args):
                                                               weights_filename=args.weights_fname,
                                                               augment=augment, augment_params_dict=augment_params_dict,
                                                                verbose=False)
-
+                    print("CNN training completed")
                     # save results
                     img_file_path = os.path.join(args.weights_dir, args.weights_fname +"_train.png")
                     plot_results(img_file_path, loss_train, loss_validation, acc_train, acc_validation, metric_name='accuracy')
