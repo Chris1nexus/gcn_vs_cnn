@@ -97,6 +97,12 @@ def save_gradcams(gradcam_logs, args):
         gradcam_log.figure.text(.5, .001, description, ha='center')
         gradcam_log.figure.savefig(path)     
 
+    reference_file =  os.path.join(args.logs_dir, "reference_gradcam_logs.txt" )
+    with open(reference_file, "w+") as outfile:
+        outfile.write("id;image_path;mask_path")
+        for i, gradcam_log in enumerate(gradcam_logs):
+            reference_file.write(f"{i};{gradcam_log.img_path};{gradcam_log.seg_path}" )
+
 def setup_dataset(args):
     ROOT_PATH = args.images 
     #assert os.path.exists(ROOT_PATH), "Error: given path does not exist"
