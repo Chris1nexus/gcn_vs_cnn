@@ -199,16 +199,14 @@ def plot_results(args, train_loss, val_loss, train_metric, val_metric, metric_na
 def setup_dataset(args, load_graphs=False):
     ROOT_PATH = args.images 
     #assert os.path.exists(ROOT_PATH), "Error: given path does not exist"
-    RESIZE_DIM = 512
+    
     # dataset setup
     datasetManager = RCCDatasetManager(ROOT_PATH,
-                        resize_dim=RESIZE_DIM,
                         download_dataset=True,
                         standardize_config={'by_patient':args.std_by_patient, 
                                              'by_patient_train_avg_stats_on_test':args.std_by_patient,
                                              'by_single_img_stats_on_test':False}, 
                         load_graphs=load_graphs,
-                        img_format='RGB',
                         verbose=True)
     return datasetManager
 
