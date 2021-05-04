@@ -16,8 +16,8 @@ def pil_loader(path, resize_dim, color_mapping):
   Returns:
       -image (Pil image)
   '''
-    # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
-    with open(path, 'rb') as f:
+  # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
+  with open(path, 'rb') as f:
         img = Image.open(f)
         img = img.convert(color_mapping).resize((resize_dim,resize_dim))
         return img #'RGB')
