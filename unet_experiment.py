@@ -1,3 +1,8 @@
+
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  
+import tensorflow as tf
+
 import argparse
 import numpy as np
 import os
@@ -32,9 +37,6 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from torchvision import models
 import matplotlib.pyplot as plt
-
-import tensorflow as tf
-tf.autograph.set_verbosity(3)
 
 
 
