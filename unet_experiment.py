@@ -33,7 +33,8 @@ from torch.utils.data import DataLoader
 from torchvision import models
 import matplotlib.pyplot as plt
 
-
+import tensorflow as tf
+tf.autograph.set_verbosity(3)
 
 
 
