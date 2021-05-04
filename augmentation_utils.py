@@ -12,6 +12,24 @@ from torchvision import transforms
 # the range of values for alpha, sigma and alpha affine 
 # have to be CAREFULLY ASSESSED in order to obtain MEANINGFUL results from the deformation
 def helper_elastic_transform(image, segmentation, alpha=(1,10), sigma=(0.08, 0.5), alpha_affine=(0.01, 0.2), random_state=None):
+  '''
+  Apply the same random elastic deformations to the given image-mask pair
+  Values of the parameters of the deformations that preserve the image information are:
+          -alpha in [1, 5]
+          -sigma in [0.08,0.13]
+          -alpha_affine in [0.07, 0.13]
+  Values outside these ranges can result in too much distortion in the resulting augmented image 
+  Args: 
+          -image (np.array dtype=np.uint8)
+          -mask (np.array dtype=np.uint8)
+          -alpha in [1, 5] (tuple)
+          -sigma in [0.08,0.13]  (tuple)
+          -alpha_affine in [0.07, 0.13] (tuple)
+          -random_state (default None)
+  Returns:
+          -transformed image (np.array dtype=np.uint8)
+          -transformed mask (np.array dtype=np.uint8)
+  '''
   # passed as np.uint8 usually, as images come from cv2 imread
   # but for the sake of generality, initial type is stored here,
   # in order to convert the images produced by the elastic transformation (which are of float type)
@@ -74,7 +92,19 @@ def elastic_transform(image, alpha, sigma, alpha_affine, random_state=None):
     return map_coordinates(image, indices, order=1, mode='reflect').reshape(shape)
 
 
-def paired_rand_rot(image, segmentation, prob=0.5,angle_range=30):
+def paired_rand_rot(image, segmentation, prob=0.5):
+  '''
+  Apply the same random rotation on the pair image-mask
+  Images are rotated of [0, 90, 180, 270] degrees
+  with probability p 
+  Args:
+      -image (torch.Tensor)
+      -mask (torch.Tensor)
+      -p (probability of the rotation) (default is 0.5)
+  Returns:
+      -transformed image (torch.Tensor)
+      -transformed mask (torch.Tensor)
+  '''
   if random.random() > (1. - prob):
     #angle = random.randint(-angle_range, angle_range)
     angles = [0, 90, 180, 270]
@@ -86,6 +116,15 @@ def paired_rand_rot(image, segmentation, prob=0.5,angle_range=30):
   return image, segmentation
 
 def paired_gauss_blur(image, segmentation, prob=0.5, kernel_size=3, sigma=(0.1, 2.0)):
+  '''
+  Apply the same random gaussian blur on the pair image-mask
+  parameters:
+      -image  (torch.Tensor)
+      -mask   (torch.Tensor)
+      -kernel_size (default is 3) (int)
+      -sigma (default range [0.1,2] ) (tuple (min,max))
+  with probability p 
+  '''
   if random.random() > 1. -prob:
     std = random.uniform(*sigma)
     image = transformFuncs.gaussian_blur(image, kernel_size=kernel_size, sigma=std)
@@ -93,6 +132,14 @@ def paired_gauss_blur(image, segmentation, prob=0.5, kernel_size=3, sigma=(0.1, 
   return image, segmentation
 
 def paired_rand_crop(image, segmentation, prob=0.5, original_kept_crop_percent=(0.75,1.0)):
+  '''
+  Apply the same random crop and resize to the image and the mask
+  parameters:
+      -image
+      -mask
+      -prob : probability of the transformation (default is 0.5)
+      -original_kept_crop_percent: percent of the original image that is kept and then resized to original shape (default range is [0.75, 1.0])
+  '''
   if random.random() > 1. - prob:
     if torch.is_tensor(image):
       dim = (1,2)
@@ -117,10 +164,18 @@ def paired_rand_crop(image, segmentation, prob=0.5, original_kept_crop_percent=(
 
 
 class AugmentTransform(object):
+  '''
+  Helper class that performs data augmentation according to the keyword arguments given when the object is allocated 
+  Args (can be set to None to skip the corresponding transformation):
+      -resize_crop   (default to {'prob':1.0, 'original_kept_crop_percent':(0.75,0.9)})  (dictionary)
+      -rotate   (default to {'prob':1.0})  (dictionary)
+      -gauss_blur   (default{'prob':1.0,'kernel_size':3, 'sigma':(0.1, 2.0)}) (dictionary)
+      -elastic_deform (default {'alpha':(1,10), 'sigma':(0.08, 0.5), 'alpha_affine':(0.01, 0.2), 'random_state':None}) (dictionary)
+  '''
 
   def __init__(self,
                   resized_crop= {'prob':1.0, 'original_kept_crop_percent':(0.75,0.9)},
-                  rotate = {'prob':1.0,'angle_range': 30},
+                  rotate = {'prob':1.0},
                   gauss_blur={'prob':1.0,'kernel_size':3, 'sigma':(0.1, 2.0)},
                   elastic_deform={'alpha':(1,10), 'sigma':(0.08, 0.5), 'alpha_affine':(0.01, 0.2), 'random_state':None},
                ):
@@ -130,6 +185,20 @@ class AugmentTransform(object):
     self.gauss_blur= gauss_blur
     self.elastic_deform = elastic_deform
   def transform(self, image, segmentation):
+    '''
+    data augmentation pipeline that applies the same transformation to the paired image-mask sample
+    elastic deformation is done with numpy arrays, which are then transformed to torch tensors for the consecutive transformations.
+    The pytorch ToTensor() transform automatically swaps the axes from channel last to channel first and if the image is of type uint8, it also rescales its values\n so that
+    they are in the range [0...1] (by dividing by 255). In any case, wheter the elastic deformation is applied or not, images are uint8, so the ToTensor transformation is
+    correctly applied.  
+    Args:
+        -image (np.array uint8) HWC (height,width,channel)
+        -mask (np.array uint8) HWC (height,width,channel)
+    Returns:
+        -image (torch.Tensor) CHW (channel, height,width)
+        -mask (torch.Tensor)  CHW (channel, height,width)
+
+    '''
     if self.elastic_deform is not None:
       
       image, segmentation = helper_elastic_transform(image, segmentation, **self.elastic_deform)

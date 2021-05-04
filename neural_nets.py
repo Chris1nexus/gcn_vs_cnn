@@ -8,6 +8,9 @@ import torch_geometric
 from collections import OrderedDict
 
 def init_weights(m):
+    '''
+    init weights of the given nn.Module
+    '''
     if type(m) == nn.Conv2d or type(m) == nn.ConvTranspose2d:
         torch.nn.init.kaiming_normal(m.weight)
         m.bias.data.fill_(0.01)
@@ -106,7 +109,10 @@ class UNet(nn.Module):
 
 
 
-class GCN(torch.nn.Module):    
+class GCN(torch.nn.Module):   
+    '''
+    Graph neural net
+    ''' 
     def __init__(self, hidden_channels, num_node_features=3, num_classes=2, dropout=0.5):
         super(GCN, self).__init__()
         #torch.manual_seed(12345)

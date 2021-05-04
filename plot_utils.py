@@ -8,6 +8,12 @@ import imageio
 from augmentation_utils import helper_elastic_transform
 
 def ipyDisplay(torchTensor): 
+  '''
+  plot torch tensor passing through the pil image API
+  Args:
+    -torchTensor (torch.Tensor) image to plot
+
+  '''
   topil = transforms.ToPILImage()
   pil_img = topil(torchTensor)
   display(pil_img)
@@ -15,6 +21,14 @@ def ipyDisplay(torchTensor):
 
 
 def plot_segmentation_history(segmentation_progress, gif_filepath, figsize=(8,8)):
+    '''
+    Helper function used by segmentation procedures.
+    Args:
+      -segmentation_progress (  list of (epoch_id, (idx, pred_grid, true_grid )) ) pred_grid, true_grid are numpy arrays composed by means of torchvision.utils makegrid function
+      -gif_filepath (str) path where to save the result
+      -figsize (tuple (int,int) ) image shape
+    
+    '''
 
     pred_history_for_idx = {}
     mask_history_for_idx = {}
@@ -49,6 +63,15 @@ def plot_segmentation_history(segmentation_progress, gif_filepath, figsize=(8,8)
 """# plot elastic deformations"""
 
 def plot_elastic_transform(img, seg_gt, alpha=(1,10), sigma=(0.08, 0.5), alpha_affine=(0.01, 0.2), random_state=None):
+    '''
+    Args:
+        -img  (np.array) image to deform
+        -seg_gt (np.array) mask to deform
+        -alpha=(1,10)  (tuple (int,int))
+        -sigma=(0.08, 0.5) (tuple (float,float))
+        -alpha_affine=(0.01, 0.2) (tuple (float,float))
+        random_state=None  (int)
+    '''
     res_img, res_seg_gt = helper_elastic_transform(img, seg_gt, alpha=alpha, sigma=sigma, alpha_affine=alpha_affine, random_state=random_state)
     fig = plt.figure(figsize=(10,8))
     raw = fig.add_subplot(221)

@@ -3,7 +3,7 @@
 
 def estimate_graph_statistics(graph_dataset):
     """
-    returns mean and variance of each color channel
+    returns mean and variance of each graph feature
     """
     mean_k = 0
     var_k = 0
@@ -35,6 +35,9 @@ def estimate_graph_statistics(graph_dataset):
 
 
 class ConnectedComponentCV2(object):
+    '''
+    Wrapper class, holding data related to cv2 connected components 
+    '''
     def __init__(self, num_components, labels, stats, centroids):
         self.num_components = num_components
         self.labels = labels 
@@ -43,6 +46,9 @@ class ConnectedComponentCV2(object):
         
         
 class GraphItemLogs(object):
+  '''
+  Log class that holds the data of any graph generation procedure (by means of the ToGraphTransform processing)
+  '''
   def __init__(self, op_sequence=None,computation_time=None):
     self.op_sequence = op_sequence
     self.computation_time = computation_time
@@ -53,7 +59,9 @@ class GraphItemLogs(object):
     return self.computation_time
 
 class GraphItem(object):
-    
+    '''
+    Container class holding all data obtained through the ToGraphTransform.graph_transform()
+    '''
     def __init__(self, image,
                 nodes_cc,
                 edges_cc,

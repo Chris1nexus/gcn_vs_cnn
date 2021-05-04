@@ -12,6 +12,24 @@ from log_utils import ExperimentLogger
 
 
 def train_classifier(log_weights_path,  train_dataloader, val_dataloader, model, learning_rate=0.0001,n_epochs=10, verbose=True,weights_filename="torch_weights.pt"):
+    '''
+    Args:
+        log_weights_path (str) where to save the torch weights
+        train_dataloader (torch.utils.data.Dataloader)
+        val_dataloader (torch.utils.data.Dataloader)
+        model (nn.Module)
+        learning_rate=0.0001 (float)
+        n_epochs=10 (int)
+        verbose=True (print results for each epoch of training in the shell)
+        weights_filename="torch_weights.pt"
+    
+    Returns:
+        loss_train (list of floats)
+        loss_validation (list of floats)
+        acc_train (list of floats)
+        acc_validation (list of floats)
+        model (nn.Module) trained model 
+    '''
     device = torch.device("cpu" if not torch.cuda.is_available() else "cuda")
     torch.cuda.empty_cache() 
     

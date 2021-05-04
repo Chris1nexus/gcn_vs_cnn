@@ -5,6 +5,15 @@ import re
 import zipfile
 
 def recursive_visit(curr_path, samples, filename_pattern, replacement_string, counter):
+            '''
+            Create list of the paths of the (image,mask)pairs, fetched according to the given filename regex pattern
+            Args:
+              curr_path  (str) current_path 
+              samples    list of ( str, str ) pairs
+              filename_pattern (regex pattern)
+              replacement_string (replace path dependent part with a unique identifier)
+              counter (int) count of found images
+            '''
             
             for item in os.listdir(curr_path):
                 curr_item_path = os.path.join(curr_path, item)

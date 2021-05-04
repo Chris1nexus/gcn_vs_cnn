@@ -43,6 +43,52 @@ from log_utils import ExperimentLogger
 
 
 class RCCDatasetManager(object):
+
+    '''
+    Class for handling the loading, creation and setup of all datasets:
+                          -A dataset (RCCImageDataset) whose samples are tuples of (image_path, mask_path, image, segmentation_image, mask, label )
+                          -Graph dataset composed by the samples  (graph, label).
+                              -The graph dataset can be either made of torch_geometric graphs or stellargraph, but the common data from which these two variations are created
+                                is the same and is contained in the graph_items
+    The main attributes of this class are:
+            -sample_dataset (RCCImageDataset) (train dataset from which the validation set is generated)
+            -out_of_sample_dataset (RCCImageDataset) (separate test dataset, never used for training)
+
+            -sample_dataset_graph_items (list of GraphItem) 
+            -sample_dataset_graph_labels (list of ints (ordinal labels))
+                    the pairs (sample_dataset_graph_items[i], sample_dataset_graph_labels[i]) represents the train set 
+
+            -out_of_sample_dataset_graph_items (list of GraphItem)
+            -out_of_sample_dataset_graph_labels (list of ints (ordinal labels))
+                    the pairs (out_of_sample_dataset_graph_items[i], out_of_sample_dataset_graph_labels[i]) represents the test set 
+
+    The convention that has been used for images is RGB.
+    Images are resized to the shape 512x512 and channels are kept in RGB ordering in case of colored images.
+
+    Args:
+        root_path (str) path where the 'vascular_segmentation' folder of the RCC dataset is located.
+                          If path is wrongly specified or does not exist, an assertion error is thrown
+        download_dataset (bool) if true, the dataset is downloaded in the folder ./rccdataset if the root_path that has been given is also none or wrongly specified
+        standardize_config (dictionary)  'by_patient': (bool) default False,  compute mean and standard dev statistics for each of the patient sample groups and standardize the respective images by these statistics
+                                                    for each patient annotation group of images, a mean and a standard deviation are computed and these are used to standardize the 
+                                                    respective annotation group. These values are then stored for later de-standardization or computation of the overall  mean and 
+                                                    standard deviation, by taking the average of the means and the square root of the average of the Variances.
+                                                    IF by_patient is TRUE, behavior on the test set is:
+                                                    - to standardize each of the TEST images by the average mean and  square root of average of the variances, computed on the train patients
+                                                                    with ###########by_patient_train_stats_avg_on_test=True################
+                                                    - to standardize each of the test image by its own mean and std as if each test image comes from its own patient.
+                                                          The logic behind this procedure is that i want to avoid too large differences in color intensity of
+                                                      different patients' biopsy material: inside one cancer class, colors vary widely from a patient to another
+                                                      but the overall features that distinguish one class from the other seem, from observation, more dependent on geometrical
+                                                      features.
+                                     'by_patient_train_avg_stats_on_test':(bool) default False, if this is true, each test image is standardized according to 
+                                                       the average mean and average variance computed on the training set  
+                                     
+                                     'by_single_img_stats_on_test': (bool) default False, if true, a test sample is standardized according to its own provided information
+        load_graphs (bool) default True: if true, after setting up the standard image dataset, the class loads also the respective graph items
+        verbose=False (bool) default False: if true, prints logging statements about each loading phase
+
+    '''
     
     X_TRAIN = "Train"
     X_TEST = "Test"
@@ -83,9 +129,7 @@ class RCCDatasetManager(object):
                                      
                                      'by_single_img_stats_on_test':False},  # if true, a test sample is standardized according to its own provided information
                  
-                 load_graphs = True,
-                img_format = 'RGB',                  
-                resize_dim=512,
+                 load_graphs = True,    
                 verbose=False):
 
         
@@ -110,12 +154,12 @@ class RCCDatasetManager(object):
             target_path = root_path
           self.root_path = target_path
         else:
-          assert root_path is not None and "vascular_segmentation" in root_path, "Error: root path must point to the 'vascular_segmentation' folder"
+          assert root_path is not None and "vascular_segmentation" in root_path and os.path.exists(root_path), "Error: root path must point to the 'vascular_segmentation' folder"
           self.root_path = root_path
 
      
-        self.resize_dim = resize_dim
-        self.img_format = img_format
+        self.resize_dim = 512
+        self.img_format = 'RGB'
 
         self.verbose = verbose
 
@@ -212,6 +256,19 @@ class RCCDatasetManager(object):
 
 
     def __get_generators__(self, train_index, validation_index, test_index, graph_labels, test_graph_labels, batch_size):
+        '''
+        internal method used to generate keras loaders for the stellargraph library
+        Args:
+            train_index (np array of indices) subset of the dataset indices that will correspond to the train set
+            validation_index (np array of indices) subset of the dataset indices that will correspond to the validation set
+            test_index (np array of indices) subset of the dataset indices that will correspond to the test set
+            graph_labels      (pandas dataframe of the one hot encoded graph labels of the sample dataset) 
+            test_graph_labels (pandas dataframe of the one hot encoded graph labels of the out of sample dataset) 
+            batch_size (int) batch size of the generators
+        Returns:
+            (PaddedGraphSequence) object to use with Keras methods fit(), evaluate(), and predict()
+  
+        '''
         train_gen = self.dataset_generator.flow(
             train_index, targets=graph_labels.iloc[train_index].values, batch_size=batch_size
         )
@@ -241,6 +298,27 @@ class RCCDatasetManager(object):
                                             rotate=None,
                                             gauss_blur=None,
                                             elastic_deform=None):
+        '''
+        Generate and sets up the train,validation, test datasets with the corresponding image transformations
+        Args:
+            validation_size (float) default is 0.1, 
+            img_train_transform (torchvision.transforms.Compose) transforms pipeline associated with the images of the train set
+            seg_train_transform (torchvision.transforms.Compose) transforms pipeline associated with the segmentation masks of the train set
+            img_test_transform (torchvision.transforms.Compose) transforms pipeline associated with the images of the validation/test set
+            seg_test_transform (torchvision.transforms.Compose) transforms pipeline associated with the  segmentation masks of the validation/test set
+                             
+            batch_size (int) 
+            train_indices (np array of indices) subset of the dataset indices that will correspond to the train set
+            validation_indices (np array of indices) subset of the dataset indices that will correspond to the validation set
+            train_augment  (bool ) whether to perform data augmentation. Must be set to True in order for data augmentation to be considered 
+
+            -resize_crop   (default to {'prob':1.0, 'original_kept_crop_percent':(0.75,0.9)})  (dictionary)
+            -rotate   (default to {'prob':1.0})  (dictionary)
+            -gauss_blur   (default{'prob':1.0,'kernel_size':3, 'sigma':(0.1, 2.0)}) (dictionary)
+            -elastic_deform (default {'alpha':(1,10), 'sigma':(0.08, 0.5), 'alpha_affine':(0.01, 0.2), 'random_state':None}) (dictionary)
+        Returns:
+            tuple of (RCCImageSubset, RCCImageSubset,RCCImageSubset),(PaddedGraphSequence,PaddedGraphSequence,PaddedGraphSequence)
+        '''
         if train_indices is None:
           train_indices, validation_indices = train_test_split(range(self.N_sample_dataset),
                                                       test_size=validation_size,
@@ -280,6 +358,20 @@ class RCCDatasetManager(object):
     def get_torch_geom_dataset(self, validation_size, 
                                         train_indices = None,
                                         validation_indices = None):
+      '''
+      Generates torch geometric specific graph dataset
+      Args:
+            validation_size (float) % of the total size of the sample_dataset to dedicate to the validation split 
+            train_indices (np.array of indices) can be None(will be generated by the function)
+                           indices of the samples that will be dedicated to the train set
+            validation_indices  (np.array of indices) can be None(will be generated by the function)
+                           indices of the samples that will be dedicated to the validation set
+      Returns:
+            train validation test split (X_torch_train,y_torch_train), (X_torch_validation,y_torch_validation), (X_torch_test,y_torch_test)          
+            Each of these is a tuple (list of torch_geometric.data.Data, list of int ordinal labels )
+            
+
+      '''
       torch_dataset_graphs, torch_dataset_graph_labels = RCCDatasetManager.make_torch_graph_dataset(self.sample_dataset_graph_items, self.sample_dataset_graph_labels,
                                                       loading_prompt_string=None)
       torch_test_graphs, test_graph_labels = RCCDatasetManager.make_torch_graph_dataset(self.out_of_sample_dataset_graph_items, self.out_of_sample_dataset_graph_labels,
@@ -319,7 +411,16 @@ class RCCDatasetManager(object):
                      by_patient_train_avg_stats_on_test=False,  # test partition only setting
                      by_single_img_stats_on_test=False,         # test partition only setting
                     ):
-      
+        '''
+        internal method of the RCCDatasetManager class, whose purpose is to load all datasets in memory, given the configuration of the dataset manager
+        Args:
+          partition (str) which partition of the dataset has to be loaded ['Train', 'Test']
+          by_patient (bool default False) whether to standardize by patient 
+          by_patient_train_avg_stats_on_test (bool default False)  whether to standardize by the train set patient specific statistics
+          by_single_img_stats_on_test (bool default False) whether to standardize by single image values
+        Returns:
+            (RCCStorage) that wraps all the loaded data
+        '''
         labels_dict = dict()
         id_to_labels = []
 
@@ -647,11 +748,24 @@ class RCCDatasetManager(object):
                                   seg_color_mapping=cv2.IMREAD_GRAYSCALE,
                                   loading_prompt_string=None):
         '''
+        Given the pairings of segmentation mask (rgb images in the trainset) and (grayscale images in the test set)
+        produces the segmentation binary masks that are used for segmentation or generation of the graphs.
         returns graph items from segmentation masks
         MUST specify color mapping of the segmentation masks (cv2.IMREAD_COLOR if colored)
         OR cv2.IMREAD_GRAYSCALE if already grayscaled
         Image format specifies what's the sequence of the color channels if any
         (dataset manager convention is RGB)
+        Args:
+                X_seg (list of np.array uint8) 
+                y_labels (list of np.array int ordinal labels)
+                resize_dim (int size of the segmentation images)
+                img_format (str) 'RGB' or 'BGR' convention
+                seg_color_mapping (int)cv2.IMREAD_GRAYSCALE,
+                loading_prompt_string (str or None) to plot custom loading message
+        Returns:
+                list of GraphItem
+                list of int ordinal labels
+        
         '''
         graphs = []
         graph_labels = []
@@ -680,6 +794,15 @@ class RCCDatasetManager(object):
     def make_stellargraph_dataset(graph_items,
                                   graph_labels,
                                   loading_prompt_string=None):
+        '''
+        Given the graph_items and graph_labels, reproduces the same data structure but in the format needed for stellargraph training
+        Args:
+            list of GraphItem
+            list of labels
+        Returns 
+            list of StellarGraph 
+            list of onehot encoded pd dataframe labels
+        '''
         sg_graphs = []
         sg_graph_labels = []
     
@@ -705,6 +828,15 @@ class RCCDatasetManager(object):
     def make_torch_graph_dataset(graph_items,
                                   graph_labels,
                                   loading_prompt_string=None):
+        '''
+        Given the graph_items and graph_labels, reproduces the same data structure but in the format needed for torch_geometric training
+        Args:
+            list of GraphItem
+            list of labels
+        Returns 
+            list of torch_geometric.Data  
+            list of labels
+        '''
         torch_graphs = []
         torch_graph_labels = []
     
@@ -737,7 +869,11 @@ class RCCDatasetManager(object):
 """# RCC Experiment Manager definition"""
 
 class ExperimentManager(object):
-
+  '''
+  Experiment wrapper class that allows to easily set up the experiments
+  Args:
+      (RCCDatasetManager)
+  '''
   def __init__(self, datasetManager ):
 
       self.datasetManager = datasetManager
@@ -756,6 +892,43 @@ class ExperimentManager(object):
                       augment_params_dict={},
                       verbose=True,
                       verbose_loss_acc=True):
+      '''
+      Unet training experiment that allows to train a given model with the provided hyper parameters and dataloaders.
+      If dataloaders are None, these are allocated from the datasetManager
+      Args:
+            model (nn.Module)
+            learning_rate (float) default 0.0001
+            epochs (int) default 20, 
+            train_dataloader (torch.utils.data.Dataloader)
+            val_dataloader (torch.utils.data.Dataloader)
+            test_dataloader(torch.utils.data.Dataloader) 
+            validation_split_size (float)0.1
+            batch_size (int) 4,
+            img_train_transform (torchvision.transforms.Compose),
+            seg_train_transform(torchvision.transforms.Compose)
+            img_test_transform (torchvision.transforms.Compose)
+            seg_test_transform (torchvision.transforms.Compose)
+            log_weights_path (str)"./log_dir",
+            weights_filename (str)"fname.pt",
+            augment       (bool) default False whether to perform data augmentation with the given augment_params_dict 
+            augment_params_dict (dict) can contain the following 
+                      -resize_crop   (default to {'prob':1.0, 'original_kept_crop_percent':(0.75,0.9)})  (dictionary)
+                      -rotate   (default to {'prob':1.0})  (dictionary)
+                      -gauss_blur   (default{'prob':1.0,'kernel_size':3, 'sigma':(0.1, 2.0)}) (dictionary)
+                      -elastic_deform (default {'alpha':(1,10), 'sigma':(0.08, 0.5), 'alpha_affine':(0.01, 0.2), 'random_state':None}) (dictionary)
+            verbose (bool) True
+            verbose_loss_acc (bool) True
+      Returns:
+            loss_train (list of floats)
+            loss_validation (list of floats)
+            IOU_train (list of floats)
+            IOU_validation (list of floats)
+            IOU_test (list of floats)
+            model (nn.Module)
+            segmentation_progress (list of np.array containing progress of the segmentation ) each item is epoch_id (list of (idx, predictions_grid, true_grid))
+            segmentation_progress_pred (list of np.array containing progress of the segmentation ) each item is epoch_id (list of (idx, predictions_grid))
+            segmentation_progress_true_mask (list of np.array containing progress of the segmentation ) each item is epoch_id (list of (idx,  true_grid))
+      '''
 
       if train_dataloader == None or val_dataloader == None or test_dataloader == None :
         assert val_dataloader == None and val_dataloader == None and test_dataloader == None  , "Error: if any of the dataloaders is empty, all three must be set to None"
@@ -800,6 +973,44 @@ class ExperimentManager(object):
                       augment_params_dict={},
                       verbose=True,
                       num_workers=4):
+      '''
+      CNN training experiment that allows to train a given model with the provided hyper parameters and dataloaders.
+      If dataloaders are None, these are allocated from the datasetManager
+      Args:
+            model (nn.Module)
+            learning_rate (float) default 0.0001
+            epochs (int) default 20, 
+            train_dataloader (torch.utils.data.Dataloader)
+            val_dataloader (torch.utils.data.Dataloader)
+            test_dataloader(torch.utils.data.Dataloader) 
+            validation_split_size (float)0.1
+            batch_size (int) 4,
+            img_train_transform (torchvision.transforms.Compose),
+            seg_train_transform(torchvision.transforms.Compose)
+            img_test_transform (torchvision.transforms.Compose)
+            seg_test_transform (torchvision.transforms.Compose)
+            log_weights_path (str)"./log_dir",
+            weights_filename (str)"fname.pt",
+            augment       (bool) default False whether to perform data augmentation with the given augment_params_dict 
+            augment_params_dict (dict) can contain the following 
+                      -resize_crop   (default to {'prob':1.0, 'original_kept_crop_percent':(0.75,0.9)})  (dictionary)
+                      -rotate   (default to {'prob':1.0})  (dictionary)
+                      -gauss_blur   (default{'prob':1.0,'kernel_size':3, 'sigma':(0.1, 2.0)}) (dictionary)
+                      -elastic_deform (default {'alpha':(1,10), 'sigma':(0.08, 0.5), 'alpha_affine':(0.01, 0.2), 'random_state':None}) (dictionary)
+
+            verbose (bool) True
+            verbose_loss_acc (bool) True
+      Returns:
+            loss_train (list of floats)
+            loss_validation (list of floats)
+            IOU_train (list of floats)
+            IOU_validation (list of floats)
+            IOU_test (list of floats)
+            model (nn.Module)
+            segmentation_progress (list of np.array containing progress of the segmentation ) each item is epoch_id (list of (idx, predictions_grid, true_grid))
+            segmentation_progress_pred (list of np.array containing progress of the segmentation ) each item is epoch_id (list of (idx, predictions_grid))
+            segmentation_progress_true_mask (list of np.array containing progress of the segmentation ) each item is epoch_id (list of (idx,  true_grid))
+      '''
 
       if train_dataloader == None or val_dataloader == None or test_dataloader == None :
         assert val_dataloader == None and val_dataloader == None and test_dataloader == None  , "Error: if any of the dataloaders is empty, all three must be set to None"
@@ -834,9 +1045,38 @@ class ExperimentManager(object):
                       batch_size=32,
                       learning_rate=0.001,
                       epochs=200,
-                      folds = None,
+                      folds = 5,
                       n_repeats = None,
                       verbose=True,verbose_epochs_accuracy=False):
+    '''
+      torch GCN training experiment that allows to train a given model with the provided hyper parameters and lists of (torch graph, label) pairs (for train, validation and test).
+      If the lists of (torch graph, label) pairs (for train, validation and test) are None, these are obtained from the datasetManager
+      Args:
+            model (nn.Module)
+            validation_size (float)0.1
+            train_torch_graphs (list of torch_geometric.data.Data)
+            train_graphs_labels (list of int)
+            val_torch_graphs (list of torch_geometric.data.Data)
+            val_graphs_labels (list of int)
+            test_torch_graphs (list of torch_geometric.data.Data)
+            test_graphs_labels (list of int)
+            cross_validation (bool) default True to perform N-fold cross validation
+            epochs (int) default 200
+            batch_size (int) 32
+            learning_rate (float) default 0.0001
+            folds (int) defaults to 5
+            n_repeats (int) number of times cross validation is repeated (default 1)
+            verbose (bool) True
+            verbose_epochs_accuracy (bool) False
+      Returns:
+            curr_model (torch GCN) trained model
+            train_acc_epochs (list of floats) if crossvalidation is true, accuracy is averaged at each epoch over all folds
+            val_acc_epochs (list of floats) if crossvalidation is true, accuracy is averaged at each epoch over all folds
+            train_loss_epochs (list of floats) if crossvalidation is true, accuracy is averaged at each epoch over all folds
+            val_loss_epochs (list of floats) if crossvalidation is true, accuracy is averaged at each epoch over all folds
+            test_accuracy after training (list of float) test accuracy at the end of training (if crossvalidation, accuracy at the end of training is provided for each fold)
+    '''
+
     
     def torch_geom_train_val_test_split(validation_size, 
                                         train_torch_graphs=None, train_graphs_labels=None,
@@ -961,9 +1201,37 @@ class ExperimentManager(object):
                       batch_size=32,
                       learning_rate=0.001,
                       epochs=200,
-                      folds = 10,
+                      folds = 5,
                       n_repeats = 1,
                       verbose=True,verbose_epochs_accuracy=False):
+    '''
+      torch GCN training experiment that allows to train a given model with the provided hyper parameters and lists of (torch graph, label) pairs (for train, validation and test).
+      If the lists of (torch graph, label) pairs (for train, validation and test) are None, these are obtained from the datasetManager
+      Args:
+            validation_size (float)0.1
+            train_sg_graphs (list of Stellargraph)
+            train_sg_labels (list of int)
+            val_sg_graphs (list of Stellargraph)
+            val_sg_labels (list of int)
+            test_sg_graphs (list of Stellargraph)
+            test_sg_labels (list of int)
+            early_stopping (keras EarlyStopping) condition
+            cross_validation (bool) default True to perform N-fold cross validation
+            epochs (int) default 200
+            batch_size (int) 32
+            learning_rate (float) default 0.001
+            folds (int) defaults to 5
+            n_repeats (int) number of times cross validation is repeated (default 1)
+            verbose (bool) True
+            verbose_epochs_accuracy (bool) False
+      Returns:
+            curr_model (torch GCN) trained model
+            train_acc_epochs (list of floats) if crossvalidation is true, accuracy is averaged at each epoch over all folds
+            val_acc_epochs (list of floats) if crossvalidation is true, accuracy is averaged at each epoch over all folds
+            train_loss_epochs (list of floats) if crossvalidation is true, accuracy is averaged at each epoch over all folds
+            val_loss_epochs (list of floats) if crossvalidation is true, accuracy is averaged at each epoch over all folds
+            test_accuracy after training (list of float) test accuracy at the end of training (if crossvalidation, accuracy at the end of training is provided for each fold)
+    '''
     def train_fold(model, train_gen, test_gen, es, epochs):
           history = model.fit(
               train_gen, epochs=epochs, validation_data=test_gen, verbose=0, callbacks=[es],
@@ -1124,6 +1392,26 @@ class ExperimentManager(object):
                                         seg_train_transform = None,
                                         img_test_transform = None,
                                         seg_test_transform = None):
+    '''
+    Generate predicted segmentation masks from the original image dataset, through the  provided segmentation_model
+    This function returns three tuples, each of which is composed of a list of graph_items and the respective labels.
+    If dataloaders are None, they are provided by the datasetManager member of this class
+
+    Args:
+        train_dataloader (torch.utils.data.Dataloader) default None 
+        val_dataloader (torch.utils.data.Dataloader) default None
+        test_dataloader (torch.utils.data.Dataloader) default None
+        validation_split_size (float)default 0.1 
+        batch_size (int) default 4                                         
+        img_train_transform (torchvision.transforms.Compose) default None
+        seg_train_transform (torchvision.transforms.Compose) default None
+        img_test_transform (torchvision.transforms.Compose) default None
+        seg_test_transform (torchvision.transforms.Compose)  default None
+    Returns:
+        train tuple (list of graph_items,list of labels)
+        validation tuple (list of graph_items,list of labels)
+        test tuple (list of graph_items,list of labels)
+    '''
     
     if train_dataloader == None or val_dataloader == None or test_dataloader == None :
         assert val_dataloader == None and val_dataloader == None and test_dataloader == None  , "Error: if any of the dataloaders is empty, all three must be set to None"
@@ -1161,6 +1449,34 @@ class ExperimentManager(object):
                         weights_filename="fname.pt",
                         verbose=False,
                         verbose_loss_acc=True):
+        '''
+        Args:
+            dataset_root_path (str) path where the 'vascular_segmentation' folder of the RCC dataset is located.
+                              If path is wrongly specified or does not exist, an assertion error is thrown 
+            model (nn.Module)
+            learning_rate (float) 0.00001
+            epochs (int) 20
+            crops_per_side (int) 4
+            batch_size (int) 4
+            num_workers (int) 2
+            validation_size (float) default is 0.1, 
+            img_train_transform (torchvision.transforms.Compose) transforms pipeline associated with the images of the train set
+            seg_train_transform (torchvision.transforms.Compose) transforms pipeline associated with the segmentation masks of the train set
+            img_test_transform (torchvision.transforms.Compose) transforms pipeline associated with the images of the validation/test set
+            seg_test_transform (torchvision.transforms.Compose) transforms pipeline associated with the  segmentation masks of the validation/test set
+            log_weights_path (str)"./log_dir",
+            weights_filename(str)"fname.pt",
+            verbose(bool)False,
+            verbose_loss_acc (bool)True
+        Returns:
+            loss_train (list of floats)
+            loss_validation(list of floats) 
+            IOU_train (list of floats) 
+            IOU_validation (list of floats)
+            segmentation_progress (list of np.array containing progress of the segmentation ) each item is epoch_id (list of (idx, predictions_grid, true_grid))
+            model (nn.Module) trained model
+
+        '''
 
 
        
@@ -1228,6 +1544,15 @@ class ExperimentManager(object):
 
 
 def get_predicted_segmentation_masks_dataset(model, dataloader):
+  '''
+  For the given model and dataloader, return a list of the predicted segmentation masks and the respective cancer labels
+  Args:
+      model (nn.Module) trained segmentation model used to do inference
+      dataloader (torch.utils.data.Dataloader) dataloader set up to generate samples from a RCCImageSubset
+  Returns 
+      predicted_segmentation_masks (list of np.array uint8 predicted masks with values 255 high and 0 low   )
+      y_labels (list of int ordinal labels)
+  '''
   model.eval()
   device = torch.device("cpu" if not torch.cuda.is_available() else "cuda")
   
@@ -1259,6 +1584,19 @@ def get_predicted_segmentation_masks_dataset(model, dataloader):
 
 
 def get_pred_mask_graph_datasets(segmentation_model, train_dataloader, val_dataloader, test_dataloader, resize_dim=512):
+  '''
+  Creates a (list of graph_items,list of corresponding cancer labels) for the train, validation and test split.  
+  Args:
+      segmentation_model (nn.Module) trained segmentation model
+      train_dataloader (torch.utils.data.Dataloader) 
+      val_dataloader (torch.utils.data.Dataloader) 
+      test_dataloader (torch.utils.data.Dataloader) 
+      resize_dim(int) image side length (default 512)
+  Returns:
+      tuple (train_pred_graphs, train_pred_graph_labels) (list of GraphItem, list of labels)
+      tuple (val_pred_graphs, val_pred_graph_labels) (list of GraphItem, list of labels)
+      tuple (test_pred_graphs, test_pred_graph_labels) (list of GraphItem, list of labels)
+  '''
   # inner utility function
   def get_pred_graphs_dataset(X,y,resize_dim, img_format='RGB', seg_color_mapping=cv2.IMREAD_GRAYSCALE, loading_prompt_string=None):
           pred_graphs, pred_graph_labels = RCCDatasetManager.load_graph_items(X, y,

@@ -23,6 +23,9 @@ from skimage.morphology import skeletonize
 
 
 class UnNormalize(object):
+    '''
+    transformation to de-standardize images, given the mean and standard deviations
+    '''
     def __init__(self, mean, std):
         self.mean = mean
         self.std = std
@@ -45,7 +48,14 @@ class UnNormalize(object):
 
 
 class ToGraphTransform(object):
-    
+    '''
+    Transform object that generates a graph data structure from a graph like image 
+    Args:
+            skeleton_kernel_element (cv2 structuring element)
+            opening_kernel_element (cv2 opening kernel)
+            dilate_skel_edges_kernel (cv2 dilate skeleton image kernel)
+            SQUARE_IMAGE_SIZE  (int) 512
+    '''
     def __init__(self, skeleton_kernel_element=None,
                          opening_kernel_element = None,
                          dilate_skel_edges_kernel = None,
@@ -99,6 +109,10 @@ class ToGraphTransform(object):
         This is done for all three types of objects.
         Having obtained a labeling for all nodes, edges and joints, they can be referenced in the final 
         step of the algorithm, where such identification is employed to generate the adjacency matrix
+        Args:
+            -image
+        Returns:
+            -graph_item
         """
         logger = OrderedDict()
         logger['0:op_init'] = image 

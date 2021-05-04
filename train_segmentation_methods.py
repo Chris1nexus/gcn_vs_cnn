@@ -20,6 +20,27 @@ def train_segmentation_model(log_weights_path,  train_dataloader, val_dataloader
                              n_epochs=10,
                              verbose=True, verbose_loss_acc=False,
                              weights_filename="torch_weights.pt"):
+    '''
+    Args:
+        log_weights_path (str) where to save the torch weights
+        train_dataloader (torch.utils.data.Dataloader)
+        val_dataloader (torch.utils.data.Dataloader)
+        model (nn.Module)
+        learning_rate=0.0001 (float)
+        n_epochs=10 (int)
+        verbose_loss_acc=True (print results for each epoch of training in the shell)
+        weights_filename="torch_weights.pt"
+    
+    Returns:
+        loss_train (list of floats)
+        loss_validation (list of floats)
+        IOU_train (list of floats)
+        IOU_validation (list of floats)
+        model   (nn.Module)
+        segmentation_progress  list of tuples: epoch_id,(idx, pred_grid, true_grid )
+        segmentation_progress_pred list of tuples: epoch_id,(idx, pred_grid )
+        segmentation_progress_true_mask  list of tuples: epoch_id,(idx, true_grid )
+    '''
     device = torch.device("cpu" if not torch.cuda.is_available() else "cuda")
     torch.cuda.empty_cache() 
     
@@ -157,6 +178,14 @@ def train_segmentation_model(log_weights_path,  train_dataloader, val_dataloader
 """## validate segmentation model method"""
 
 def validate_segmentation(model, test_dataloader):
+  '''
+    Args:
+        model (nn.Module)
+        test_dataloader (torch.utils.data.Dataloader)
+    Returns:
+        IOU_test (list of floats)
+
+  '''
   model.eval()
   device = torch.device("cpu" if not torch.cuda.is_available() else "cuda")
   IoU_test =[]
@@ -188,6 +217,25 @@ def train_crop_segmentation_model(log_weights_path,  train_dataloader, val_datal
                              n_epochs=10,
                              verbose=True, verbose_loss_acc=False,
                              weights_filename="torch_weights.pt"):
+    '''
+    Args:
+        log_weights_path (str) where to save the torch weights
+        train_dataloader (torch.utils.data.Dataloader)
+        val_dataloader (torch.utils.data.Dataloader)
+        model (nn.Module)
+        learning_rate=0.0001 (float)
+        n_epochs=10 (int)
+        verbose_loss_acc=True (print results for each epoch of training in the shell)
+        weights_filename="torch_weights.pt"
+    
+    Returns: 
+        loss_train (list of floats)
+        loss_validation (list of floats)
+        IOU_train (list of floats)
+        IOU_validation (list of floats)
+        model   (nn.Module)
+        segmentation_progress  list of tuples: epoch_id,(idx, pred_grid, true_grid )
+    '''
     device = torch.device("cpu" if not torch.cuda.is_available() else "cuda")
     torch.cuda.empty_cache() 
     

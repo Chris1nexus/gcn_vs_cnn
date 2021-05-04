@@ -21,6 +21,17 @@ def test_classifier_gradcam(model, target_layer, dataloader,
                              standardization_img_means, 
                              standardization_img_std,
                              gradcam_method= 'gradcam++'):
+  '''
+  Args:
+    -model (nn.Module) torch convnet model to evaluate with GradCAM
+    -target_layer (torch layer) layer of the model with respect to which the GradCAM is evaluated
+    -dataloader (torch.utils.DataLoader) dataloader used to generated the gradcam activation maps
+    -standardization_img_means (tuple) means of the image channels (needed to de-normalize images if standardization preprocessing is applied)
+    -standardization_img_std  (tuple) standard deviations of the image channels (needed to de-normalize images if standardization preprocessing is applied)
+  Returns:
+    -list of GradcamLog objects (list of GradcamLogger) log of  each gradcam result
+    - figures (list of matplotlib Figure ) 
+  '''
   # non interactive backend for plotting images
   #curr_backend =  plt.rcParams['backend']
   matplotlib.use('agg')

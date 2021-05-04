@@ -17,8 +17,63 @@ from augmentation_utils import AugmentTransform
 
 
 
+
+class RCCStorage(object):
+    '''
+    Container class that holds all data related to the rcc dataset, maintaining all informations for each sample.
+    The dataset is essentially composed of:
+            - X_img
+            - X_seg
+            -y_labels
+    These constitute the wsi slide image crop, the segmentation mask and the cancer type label, respectively.
+    For each index, the lists contain the data related to a single sample.
+    Furthermore, in order to identify samples in any phase of the training, the image path, the segmentation path are maintained.
+    Optionally, a data structure that associates each image to its patient is also stored.
+    The latter is useful if standardization by patient is requested, and if that is the case, also the statistic used to standardize the data
+    related to a specific patient are kept in a dictionary, with key the patient id and value the used statistics
+    '''
+    
+    def __init__(self, X_img,
+                 X_seg,
+                 y_labels,
+                 y_numeric,
+                 mapping_id_to_label,
+                 mapping_label_to_id,
+                 img_paths,
+                 seg_paths,
+                img_to_patient_map=None,
+                seg_to_patient_map=None,
+                img_to_sample_group_statistics=None ):
+        self.X_img = X_img
+        self.X_seg = X_seg
+        self.y_labels = y_labels
+        self.y_numeric = y_numeric
+        self.mapping_id_to_label = mapping_id_to_label
+        self.mapping_label_to_id = mapping_label_to_id
+        self.img_paths = img_paths
+        self.seg_paths = seg_paths
+
+        self.img_to_patient_map = img_to_patient_map 
+        self.seg_to_patient_map = seg_to_patient_map 
+        self.img_to_sample_group_statistics = img_to_sample_group_statistics
+
+
     
 class RCCImageDataset(Dataset):
+    '''
+    Pytorch dataset data structure that holds that exposes the functionalities of a standard torch Dataset:
+                -__getitem__ 
+                -__len__
+    This subclass allows the use of dataloaders for effective parallel processing and also of standardized data splitting in train/validaition/test.
+    parameters:
+        -rccStorage (container that holds all data related to the current dataset instance)
+        -resize_dim (image shape used to resize the original images)
+        -img_format (convention used to load images, then maintained everywhere in all dataset structures: cv2 uses BGR but for interfacing purposes between cv2 and pytorch, RGB is used)
+        -img_color_mapping (color mapping used to load the images by means of opencv)
+        -seg_color_mapping (color mapping used to load the segmentation masks by means of opencv)
+    resize_dim is required, since the ToGraphTransform (that extracts a graph data structure from the segmentation mask)
+    uses different kernel sizes for preprocessing, depending on the resized image size
+    '''
 
     def __init__(self, 
                  rccStorage,
@@ -52,12 +107,13 @@ class RCCImageDataset(Dataset):
 
     def __getitem__(self, index):
         '''
-        __getitem__ should access an element through its index
+        __getitem__ access an element through its index.
         Args:
             index (int): Index
 
         Returns:
-            tuple: (sample, target) where target is class_index of the target class.
+            tuple: (image_path, seg_path, image, segmented, segmented_ground_truth), label_id    
+            with all the data related to a given sample
         '''
 
         image_path = self.img_paths[index]
@@ -91,9 +147,21 @@ class RCCImageSubset(Dataset):
     Subset of a dataset at specified indices.
 
     Arguments:
-        dataset (Dataset): The whole Dataset
-        indices (sequence): Indices in the whole set selected for subset
-        transform (torch.transforms): transforms to use on the subset of the original dataset 
+        dataset (Dataset): The pytorch dataset from which the subset is obtained
+        indices (sequence): Indices in the whole set, selected for subset
+        img_transform (torch.transforms): image transforms to use on the subset of the original dataset
+        seg_transform (torch.transforms): mask transforms to use on the subset of the original dataset
+        augment (bool): whether data augmentation has to be applied
+        resized_crop   (dictionary)
+        rotate=None   (dictionary)
+        gauss_blur=None   (dictionary)
+        elastic_deform=None   (dictionary)
+        convention for the dictionaries is (according to AugmentTransform in the augmentation_utils module)
+                     -resize_crop   (default to {'prob':1.0, 'original_kept_crop_percent':(0.75,0.9)})  (dictionary)
+                      -rotate   (default to {'prob':1.0})  (dictionary)
+                      -gauss_blur   (default{'prob':1.0,'kernel_size':3, 'sigma':(0.1, 2.0)}) (dictionary)
+                      -elastic_deform (default {'alpha':(1,10), 'sigma':(0.08, 0.5), 'alpha_affine':(0.01, 0.2), 'random_state':None}) (dictionary)
+
     """
     
     def __init__(self, dataset, indices, img_transform, seg_transform, 
@@ -112,7 +180,19 @@ class RCCImageSubset(Dataset):
                                                  gauss_blur=gauss_blur,
                                                  elastic_deform=elastic_deform)
     def __getitem__(self, idx):
+        '''
+        Args: 
+                -index of the sample
+        Returns ( sample data, returned after the transformations are applied):
+                - img_path (str)
+                - seg_path (str)
+                - img (torch.Tensor)
+                - seg (torch.Tensor)
+                - seg_gt (torch.Tensor)
+                - label (int)
 
+
+        '''
         (img_path, seg_path, img, seg, seg_gt), label = self.dataset[self.indices[idx]]
  
         if self.img_transform is not None:
@@ -141,6 +221,12 @@ class RCCImageSubset(Dataset):
         return (img_path, seg_path, img,seg,seg_gt), label
 
     def __len__(self):
+        '''
+        Args:
+
+        Returns:
+            length of the dataset (int)
+        '''
         return len(self.indices)
 
 
@@ -151,12 +237,19 @@ class RCCImageSubset(Dataset):
 
 
 class CropDataset(Dataset):
+  '''
+    Torch dataset used to perform which follows the same principles of the other datasets,
+    but resizes images to 2048 (from 2000x2000 original size) so that their length can be split in equal length segments that are powers of 2.
+    For example, from an image 2048x2048, splitting the side length in 4 pieces yields 16 cropped images from 1 original, and so on.
+    
+
+  '''
   def __init__(self,
                   root_path,
                   download_dataset = True,
                  in_memory=True,
                  partition="Train",
-                resize_dim=512,
+                resize_dim=2048,
                  num_crops_per_side =4,
 
                 img_format ='RGB', # alternative is BGR, which is the standard format for cv2 but not other libraries
@@ -174,10 +267,12 @@ class CropDataset(Dataset):
           target_path = os.path.join(target_directory, "vascular_segmentation")
           if (not os.path.exists(target_path) and root_path is None) or \
                               ( root_path is not None and ("vascular_segmentation" not in root_path or not os.path.exists(root_path))  ):
-            # if root path is none and the donwloaded dataset folder does not exist OR 
+            # if root path is none and the downloaded dataset folder does not exist OR 
             # root path is NOT none and (it does not contain vascular segmentation OR it does not exist)
             # we download the dataset on the folder
             self.__download_dataset__(drive_file_id, tmp_destination, target_directory)
+          else:
+            target_path = root_path
           self.root_path = target_path
         else:
           assert root_path is not None and "vascular_segmentation" in root_path, "Error: root path must point to the 'vascular_segmentation' folder"
@@ -356,32 +451,4 @@ class CropDataset(Dataset):
 
 
 
-
-
-
-class RCCStorage(object):
-    
-    def __init__(self, X_img,
-                 X_seg,
-                 y_labels,
-                 y_numeric,
-                 mapping_id_to_label,
-                 mapping_label_to_id,
-                 img_paths,
-                 seg_paths,
-                img_to_patient_map=None,
-                seg_to_patient_map=None,
-                img_to_sample_group_statistics=None ):
-        self.X_img = X_img
-        self.X_seg = X_seg
-        self.y_labels = y_labels
-        self.y_numeric = y_numeric
-        self.mapping_id_to_label = mapping_id_to_label
-        self.mapping_label_to_id = mapping_label_to_id
-        self.img_paths = img_paths
-        self.seg_paths = seg_paths
-
-        self.img_to_patient_map = img_to_patient_map 
-        self.seg_to_patient_map = seg_to_patient_map 
-        self.img_to_sample_group_statistics = img_to_sample_group_statistics
 

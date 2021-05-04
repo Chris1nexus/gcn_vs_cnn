@@ -17,6 +17,18 @@ from processing_utils import UnNormalize
 
 
 def test_segmentation_overlay_plots(test_dataloader, net, img_means=None, img_std=None, figsize=(14,14)):
+  '''
+  
+  Args:
+      -test_dataloader (torch.utils.data.Dataloader)
+      -net (nn.Module) 
+      -img_means tuple of size number of channels in 0...1 
+      -img_std   tuple of size number of channels in 0...1
+      -figsize tuple:(int,int) (14,14)
+  Returns
+      -list of OverlaySegmentationLogger objects
+      -list of matplotlib Figure objects
+  '''
   if img_means is not None:
     unnormalizer = UnNormalize(img_means, img_std)
   

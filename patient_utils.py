@@ -7,6 +7,12 @@ from operator import itemgetter
 
 
 class Patient(object):
+  '''
+  Patient that represents all samples of the RCC dataset, to it related.
+  It is used for the purpose of standardizing by patient.
+  A sample group represents all samples related to a given annotation of a given patient: all samples are grouped under the same group if no annotation subset is given.
+  '''
+
   def __init__(self, patientid, cancer_type, dataset):
     self.patientid = patientid
     self.cancer_type = cancer_type
@@ -16,6 +22,12 @@ class Patient(object):
     # used for samples without key 
     self.standard_key = 0
   def add_sample(self, img_path, seg_path, sample_key=None):
+    '''
+    Add sample to the sample group of the current patient
+    A sample key is composed of all items in the path of the given sample, FROM the PATIENT ID(included) 
+    till the filename component (EXCLUDED).
+
+    '''
     if sample_key is None:
       sample_key = self.standard_key
 
@@ -72,8 +84,16 @@ def find_position(item , document):
 
 
 def map_patients_to_ids(sample):
+  '''
+  Generate key-value mapping from a given sample, key = patientid, value=Patient object
+  This is the map phase needed for the consequent reduce, that groups all samples of a given patients, by merging two 'patient' objects with the same id together.
+  Initially, a patient is generated for each sample. Then, these are reduced together through the map-reduce paradigm.
+  Args:
+      -sample tuple(img_path: str, seg_path: str) a single sample composed by the path of the image and the path of its mask
+  Returns:
+      - patient tuple (patientid:str,patient:Patient) 
+  '''
   img_path, seg_path = sample
-  #patient_id = list(filter(lambda x: "HP" in x, img_path.split(os.sep ) ) )[0]
 
   train_str = "Train"
   test_str = "Test"
@@ -108,6 +128,15 @@ def map_patients_to_ids(sample):
 
 
 def reduce_bykey(patient1, patient2):
+    '''
+    Reduce phase to apply after mapping with map_patients_to_ids is done (patients passed to this function have the same id by definition of the MAP REDUCE PARADIGM)
+    Args:
+      patient1 tuple (patientid:str,patient:Patient) 
+      patient2 tuple (patientid:str,patient:Patient)
+    Returns:
+      merged patient tuple (patientid:str,patient:Patient)
+
+    '''
     pid1, patient1 = patient1
     pid2, patient2 = patient2
     return (pid1, Patient.merge_patients(patient1,patient2))

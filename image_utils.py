@@ -7,6 +7,15 @@ import torch
 import numpy as np
 
 def pil_loader(path, resize_dim, color_mapping):
+  '''
+  load image by means of the PIL library
+  Args:
+      -path (str) image_path
+      -resize_dim (int) image 
+      -color_mapping (str) pil color mapping ['RGB','L'] L is for grayscale
+  Returns:
+      -image (Pil image)
+  '''
     # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
     with open(path, 'rb') as f:
         img = Image.open(f)
@@ -14,6 +23,16 @@ def pil_loader(path, resize_dim, color_mapping):
         return img #'RGB')
 
 def read_image(path, resize_dim, color_mapping, img_format='RGB'):
+    '''
+    load image by means of the PIL library
+    Args:
+        -path (str) image_path
+        -resize_dim (int) image 
+        -color_mapping (int) cv2 color mapping [cv2.IMREAD_COLOR, cv2.IMREAD_GRAYSCALE ] (cv2.IMREAD_COLOR IS BGR)
+        -img_format (str) [RGB, BGR] if RGB, converts BGR format to RGB 
+    Returns:
+        -image (np.array np.uint8)
+    '''
     img_item = cv2.imread(path, color_mapping)
     resized_img_item = cv2.resize(img_item, (resize_dim,resize_dim))
     if color_mapping == cv2.IMREAD_COLOR and img_format == 'RGB':
@@ -23,6 +42,17 @@ def read_image(path, resize_dim, color_mapping, img_format='RGB'):
 
 def np_recompose_tensor(crops,  image_shape_getter_fn, n_channels_getter_fn,
                         paste_fn, init_output_fn ):
+  '''
+    from a tensor made of square crops, recompose the original image 
+    Args:
+        -crops (list of tuples (i,j coords in the matrix ) and (np.array or torch.Tensor) ) position (i,j) in the original image, 
+        -image_shape_getter_fn (function) lambda function that extracts image size given a tensor of any type 
+        -n_channels_getter_fn (function) lambda function that extracts number of channels given a tensor of any type 
+        -paste_fn (function) lambda function that extracts number of channels given a tensor of any type
+        -init_output_fn (function) lambda function that initializes destination tensor where crops are repositioned
+    Returns:
+        -image (np.array or torch.Tensor) destination tensor
+  '''
   coords, cropped_tensor = crops[0]
   crop_dim = image_shape_getter_fn(cropped_tensor)
   #num_crops_per_side = original_side_len//crop_dim[0]  #original_shape[1]//crop_dim[0]
@@ -58,6 +88,16 @@ def np_recompose_tensor(crops,  image_shape_getter_fn, n_channels_getter_fn,
 
 def np_make_crops(tensor_img,image_shape_getter_fn,
                         crop_fn,split_side_in=4):
+  '''
+    from a tensor made of square crops, recompose the original image 
+    Args:
+        -tensor_img (np.array or torch.Tensor ) image to be split in square crops
+        -image_shape_getter_fn (function) lambda function that extracts image size given a tensor of any type 
+        -crop_fn (function) lambda function that extracts the crop given the tensor_img,row_indices and  col_indices 
+        -paste_fn (function) lambda function that extracts number of channels given a tensor of any type
+    Returns:
+        -list of crops ( each item is ((i,j), np.array or torch.Tensor )
+  '''
   crops = []
 
   img_shape = image_shape_getter_fn(tensor_img)
@@ -129,6 +169,9 @@ def is_on(image,i,j):
     return image[i][j] == 255
 
 def remove_isolated(img):
+    '''
+    remove isolated pixels given an 8-neighborhood (given a pixel, these are all its adjacent pixels)
+    '''
     h, w = img.shape
     image = img.copy()
     
@@ -163,6 +206,14 @@ def remove_isolated(img):
 
 
 def binarize_to_numpy(segmentation_image, seg_color_mapping, img_format='RGB'):
+  '''
+  Args:
+      -segmentation_image(np.array dtype np.uint8) image to binarize
+      -seg_color_mapping (int in [cv2.IMREAD_COLOR, cv2.IMREAD_GRAYSCALE])
+      -img_format (str) (default is 'RGB') otherwise 'BGR'
+  Returns:
+      -binarized image (np.array uint8) whose values are  0 or 255
+  '''
   if seg_color_mapping == cv2.IMREAD_COLOR:
     if img_format == 'RGB':
       segmentation_image = cv2.cvtColor(segmentation_image, cv2.COLOR_RGB2BGR)
@@ -176,6 +227,14 @@ def binarize_to_numpy(segmentation_image, seg_color_mapping, img_format='RGB'):
 
 
 def get_segmentation_mask(segmentation, seg_color_mapping, img_format):
+  '''
+  generate classification mask from segmentation image mask, by binarizing it and assigning class label 0 and 1 to values 0,255 respectively
+  Args: 
+      -segmentation image (np.array uint8 RGB format) to binarize and make as classification mask for training 
+      -seg_color_mapping cv2.IMREAD_COLOR or cv2.IMREAD_GRAYSCALE
+      -img_format 'RGB' or 'BGR'
+
+  '''
   binarized_255_0 = binarize_to_numpy(segmentation, seg_color_mapping, img_format)
   
   binarized_255_0[binarized_255_0==255] = 1

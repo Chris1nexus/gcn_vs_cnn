@@ -24,6 +24,17 @@ def create_graph_classification_model(generator, hidden_layer_sizes=(64, 64, 64,
                                                   activations=('relu','relu','relu','relu'),
                                                   dropout=0.2,
                                                   learning_rate=0.001):
+    '''
+    generates stellargraph graph neural network
+    Args:
+        -generator (keras generator)
+        -hidden_layer_sizes=(64, 64, 64, 64)
+        -activations=('relu','relu','relu','relu'),
+        -dropout=0.2,
+        -learning_rate=0.001
+    Returns:
+        -stellargraph model
+    '''
     gc_model = GCNSupervisedGraphClassification(
         layer_sizes=hidden_layer_sizes,
         activations=activations,

@@ -9,6 +9,24 @@ def train_test_torch_gcn(model, X_torch_train, X_torch_validation, X_torch_test,
                                 epochs=200,
                                 verbose=False,
                                 verbose_epochs_accuracy=False):
+    '''
+    Args:
+        model (nn.Module)
+        X_torch_train (torch dataset)
+        X_torch_validation (torch dataset)
+        X_torch_test (torch dataset)
+        batch_size=32 (int)
+        learning_rate=0.001 (float)
+        epochs=200 (int)
+        verbose_epochs_accuracy=False plot results for each epoch of training
+    Returns:
+        train_acc_epochs (list of floats)
+        val_acc_epochs (list of floats)
+        test_acc_epochs (list of floats)
+        train_loss_epochs (list of floats)
+        val_loss_epochs (list of floats)
+        test_loss_epochs (list of floats)
+    '''
     def train(model, train_dataloader, criterion, optimizer):
         model.train()
 
