@@ -1,6 +1,10 @@
 import argparse
 
 
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  
+import tensorflow as tf
+
 from plot_utils import ipyDisplay
 from graph_utils import estimate_graph_statistics
 from graph_utils import GraphItem, ConnectedComponentCV2, GraphItemLogs
