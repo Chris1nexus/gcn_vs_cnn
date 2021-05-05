@@ -69,14 +69,14 @@ def main(args):
                         log_weights_path = "./experiment_log_folder"
                         weights_filename = "unet_weights.pt"
                         augment_params_dict = {'resized_crop': None,
-                        'rotate' : {'prob':1.0,'angle_range': 30},
+                        'rotate' : {'prob':1.0},
                           'gauss_blur' : None,
                           'elastic_deform': None
                             }
                         kwargs_dict = {'learning_rate':args.unet_lr, 'batch_size':4, 'img_train_transform':img_train_transform, 'seg_train_transform':seg_train_transform,
                                                                   'img_test_transform':img_test_transform,
                                                                   'seg_test_transform':seg_test_transform,
-                                                                  'epochs':20,
+                                                                  'epochs':args.unet_epochs,
                                                                   'log_weights_path':log_weights_path,
                                                                   'weights_filename':weights_filename,
                                                                   'augment':True, 
@@ -330,14 +330,20 @@ if __name__ == "__main__":
         "--state-dict-path",
         type=str,
         default=None,
-        help="(ONLY VALID IF unet dataset) Path to the weights of the trained unet model, else a unet will be trained with:\n\t\t lr=0.00005, batch_size=4, epochs=20"+\
+        help="(ONLY VALID IF unet dataset) Path to the weights of the trained unet model (if this is valid, --unet-lr, --unet-epochs are ignored), else a unet will be trained with:\n\t\t lr=unet-lr argument, batch_size=4, epochs=unet-epochs argument"+\
         														"\n\t\t all remaining parameters are configurable by means of the available command line arguments" 
     )
     parser.add_argument(
         "--unet-lr",
         type=float,
         default=0.00005,
-        help="(ONLY VALID IF unet dataset) initial unet learning rate (default: 0.00005)",
+        help="(ONLY VALID IF unet dataset) unet learning rate (default: 0.00005)",
+    )
+    parser.add_argument(
+        "--unet-epochs",
+        type=int,
+        default=40,
+        help="(ONLY VALID IF unet dataset) unet epochs (default: 40)",
     )
 
 
