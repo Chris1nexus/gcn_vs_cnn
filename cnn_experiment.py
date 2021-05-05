@@ -182,13 +182,12 @@ def setup_dataset(args):
     RESIZE_DIM = 512
     # dataset setup
     datasetManager = RCCDatasetManager(ROOT_PATH,
-                        resize_dim=RESIZE_DIM,
                         download_dataset=True,
                         standardize_config={'by_patient':args.std_by_patient, 
                                              'by_patient_train_avg_stats_on_test':args.std_by_patient,
                                              'by_single_img_stats_on_test':False}, 
                         load_graphs=False,
-                        img_format='RGB',
+                    
                         verbose=True)
     return datasetManager
 def setup_augmentation(args):
