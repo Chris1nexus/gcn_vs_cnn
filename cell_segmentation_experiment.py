@@ -100,7 +100,7 @@ def main(args):
         out_channels = 2
 
         
-        kwargs_dict = {'learning_rate':args.lr, 'batch_size':args.batch_size,
+        kwargs_dict = {'learning_rate':args.lr,
                  'n_epochs':args.epochs,
                  'log_weights_path':args.weights_dir,
                  'weights_filename':args.weights_fname,
