@@ -93,7 +93,7 @@ def main(args):
                                       target_transform=seg_test_transform,
                               verbose=VERBOSE)
         train_crop_dataloader = DataLoader(train,batch_size=args.batch_size, shuffle=True, num_workers=args.workers, collate_fn=collate)
-        test_crop_dataloader = DataLoader(test,batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, collate_fn=collate)
+        test_crop_dataloader = DataLoader(test,batch_size=args.batch_size, shuffle=True, num_workers=args.workers, collate_fn=collate)
 
     
         in_channels = 1
