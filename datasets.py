@@ -5,6 +5,9 @@ import re
 from tqdm import tqdm
 from torchvision import transforms
 
+from PIL import Image
+import numpy as np
+
 
 from processing_utils import ToGraphTransform
 from image_utils import get_segmentation_mask, read_image
@@ -13,6 +16,8 @@ from processing_utils import ToGraphTransform
 from image_utils import np_make_crops, np_recompose_tensor,  img_paste_fn, seg_paste_fn, read_image, get_segmentation_mask
 from utils import recursive_visit, DriveDownloader
 from augmentation_utils import AugmentTransform
+
+
 
 
 
@@ -452,3 +457,93 @@ class CropDataset(Dataset):
 
 
 
+
+# data path to where gt and raw are located
+def import_data(data_path, resize_shape=(512,512)):
+    images_folder = os.path.join(data_path,"raw")
+    labels_folder = os.path.join(data_path,"gt")
+
+    filenames = [os.path.join(images_folder,file) for file in os.listdir(images_folder) if file.endswith(".jpg")]
+    images = []
+    labels = []
+    for f in filenames:
+        img = Image.open(f)
+        img = img.resize(resize_shape, Image.ANTIALIAS)
+        img = np.array(img, dtype=np.float32)
+        img = img / 255.
+        images.append(img)
+        id = re.search(".*/(.+).jpg", f).group(1)
+       
+        label_file = labels_folder+"/"+id+".jpg"
+        label = Image.open(label_file)
+        label = label.resize(resize_shape, Image.ANTIALIAS)
+        label = np.array(label, dtype=np.float32)
+        #print(label.shape)
+        label = np.expand_dims(label, axis=2)
+        label = label / 255.
+        labels.append(label)
+
+    images = np.array(images)
+    labels = np.array(labels)
+    return images, labels
+
+
+
+
+class CellDataset(Dataset):
+    """
+    Subset of a dataset at specified indices.
+
+    Arguments:
+        dataset (Dataset): The whole Dataset
+        indices (sequence): Indices in the whole set selected for subset
+        transform (torch.transforms): transforms to use on the subset of the original dataset 
+    """
+    
+    def __init__(self, data_path,mode="train", resize_shape=(512,512), img_transform=None, seg_transform=None):
+
+        self.img_transform = img_transform
+        self.seg_transform = seg_transform
+        if mode == "train":
+          images_folder = os.path.join(data_path,"raw")
+          labels_folder = os.path.join(data_path,"gt")
+        else:
+          images_folder = os.path.join(data_path,"test_raw")
+          labels_folder = os.path.join(data_path,"test_gt")
+        filenames = [os.path.join(images_folder,file) for file in os.listdir(images_folder) if file.endswith(".jpg")]
+        images = []
+        labels = []
+        for f in filenames:
+            img = Image.open(f)
+            img = img.resize(resize_shape, Image.ANTIALIAS)
+            img = np.array(img, dtype=np.float32)
+            img = img / 255.
+            images.append(img)
+            id = re.search(".*/(.+).jpg", f).group(1)
+          
+            label_file = labels_folder+"/"+id+".jpg"
+            label = Image.open(label_file).convert("L")
+            label = label.resize(resize_shape, Image.ANTIALIAS)
+            label = np.array(label, dtype=np.float32)
+            #print(label.shape)
+            label = np.expand_dims(label, axis=2)
+            label = label / 255.
+            label = np.where(label > 0.5, 1, 0)
+            labels.append(label)
+
+        self.images = np.array(images)
+        self.labels = np.array(labels)
+    def __getitem__(self, idx):
+
+        image = self.images[idx]
+        label = self.labels[idx]
+        
+        if self.img_transform is not None:             
+          image = self.img_transform(image)
+        if self.seg_transform is not None:
+          label = self.seg_transform(label)
+     
+        return image, label
+
+    def __len__(self):
+        return len(self.images)
