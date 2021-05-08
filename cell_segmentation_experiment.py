@@ -25,7 +25,7 @@ from datasets import CellDataset
 from datasets import CropDataset
 from torch.utils.data import DataLoader
 from datasets import import_data
-
+from train_segmentation_methods import train_adaptation_unet
 def main(args):
         
         #os.system('mkdir content')
