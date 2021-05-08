@@ -28,23 +28,23 @@ from datasets import import_data
 
 def main(args):
         
-        os.system('mkdir content')
-        os.system('cd content')
+        #os.system('mkdir content')
+        #os.system('cd content')
         os.system('git clone https://github.com/VikramShenoy97/Histology-Image-Segmentation-using-UNet.git')
         os.system('cp -r ./Histology-Image-Segmentation-using-UNet/. .')
         #os.system('cd /content')
 
-        if os.path.exists('gcn_vs_cnn_bioinformatics'):
-            os.system('rm -rf gcn_vs_cnn_bioinformatics')
-        os.system('git clone https://chris1nexus:Android560ti@github.com/Chris1nexus/gcn_vs_cnn_bioinformatics.git')
-        os.system('cd gcn_vs_cnn_bioinformatics')
+        #if os.path.exists('gcn_vs_cnn_bioinformatics'):
+        #    os.system('rm -rf gcn_vs_cnn_bioinformatics')
+        #os.system('git clone https://chris1nexus:Android560ti@github.com/Chris1nexus/gcn_vs_cnn_bioinformatics.git')
+        #os.system('cd gcn_vs_cnn_bioinformatics')
 
-        images, labels = import_data("../data", resize_shape=(512,512))
+        images, labels = import_data("data", resize_shape=(512,512))
 
         img_transform = transforms.Compose([transforms.ToTensor(), transforms.Grayscale()])
         seg_transform = transforms.Compose([transforms.ToTensor()])
-        cell_dataset = CellDataset(data_path="../data", img_transform=img_transform, seg_transform=seg_transform)
-        cell_test_dataset = CellDataset(data_path="../", mode="test", img_transform=img_transform, seg_transform=seg_transform)
+        cell_dataset = CellDataset(data_path="./data", img_transform=img_transform, seg_transform=seg_transform)
+        cell_test_dataset = CellDataset(data_path="./", mode="test", img_transform=img_transform, seg_transform=seg_transform)
         train_cell_dataloader = DataLoader(cell_dataset, batch_size=4, shuffle=True)
         test_cell_dataloader = DataLoader(cell_test_dataset, batch_size=4, shuffle=True)
 
@@ -92,8 +92,8 @@ def main(args):
        	                              img_transform=img_test_transform,
                                       target_transform=seg_test_transform,
                               verbose=VERBOSE)
-        train_crop_dataloader = DataLoader(train,batch_size=batch_size, shuffle=True, num_workers=num_workers, collate_fn=collate)
-        test_crop_dataloader = DataLoader(test,batch_size=batch_size, shuffle=True, num_workers=num_workers, collate_fn=collate)
+        train_crop_dataloader = DataLoader(train,batch_size=args.batch_size, shuffle=True, num_workers=args.workers, collate_fn=collate)
+        test_crop_dataloader = DataLoader(test,batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, collate_fn=collate)
 
     
         in_channels = 1
@@ -129,35 +129,6 @@ def main(args):
 
 
 
-""" segmentation plotting"""
-def plot_segmentation_progress(segmentation_progress, log_dir):
-        finals = []
-        pred_progress_list,mask_progress_list = [],[]
-        for epoch, items in segmentation_progress:
-            cat_tensor = torch.cat(  [  torch.where( pred > 0., pred, true*0.5 )  for idx, pred , true in items if pred.shape[1] == 2058  ]    , dim=0)
-            
-            pred_cat = torch.cat(  [ pred for idx, pred , true in items if pred.shape[1] == 2058  ]    , dim=0)
-            true_cat = torch.cat(  [ true for idx, pred , true in items if pred.shape[1] == 2058  ]    , dim=0)
-            pred_progress_list.append(pred_cat)
-            mask_progress_list.append(true_cat)
-            finals.append(cat_tensor)
-        
-
-        fig = plt.figure(figsize=(10,10))
-        plt.axis("off")
-
-        ims = [[plt.imshow(pred ,animated=True), plt.imshow(mask, animated=True, cmap='jet',alpha=0.2) ] for pred,mask in zip(pred_progress_list,mask_progress_list) ]
-
-        ims = ims + [ims[-1] for _ in range(5)]
-        ani = animation.ArtistAnimation(fig, ims, interval=1000, repeat_delay=100000, blit=True)
-        writer = PillowWriter(fps=2)  
-
-        path = os.path.join(log_dir, "segmentation_progress.gif")
-        ani.save(path, writer=writer)  
-        #HTML(ani.to_jshtml())
-
-
-
 
 
 
@@ -180,72 +151,6 @@ def plot_results(args, train_loss, val_loss, train_metric, val_metric, metric_na
         acc_fig.set_xlabel('epoch')
         acc_fig.legend(['train', 'validation'], loc='upper left')
         plt.savefig(img_file_path)
-
-
-def setup_dataset(args, load_graphs=False):
-    ROOT_PATH = args.images 
-    #assert os.path.exists(ROOT_PATH), "Error: given path does not exist"
-    
-    # dataset setup
-    datasetManager = RCCDatasetManager(ROOT_PATH,
-                     
-                        download_dataset=True,
-                        standardize_config={'by_patient':args.std_by_patient, 
-                                             'by_patient_train_avg_stats_on_test':args.std_by_patient,
-                                             'by_single_img_stats_on_test':False}, 
-                        load_graphs=load_graphs,
-                    
-                        verbose=True)
-    return datasetManager
-
-def setup_augmentation(args):
-    augment_params_dict = dict()
-
-    if args.rand_rot:
-            augment_params_dict['rotate'] = {'prob':1.0}
-           
-    if args.rand_crop:
-            augment_params_dict['resized_crop'] = {'prob':1.0, 'original_kept_crop_percent':(0.7,1.0)}
-  
-    if args.rand_elastic_deform:
-            augment_params_dict['elastic_deform'] = {'alpha':(1,10), 'sigma':(0.07, 0.13), 'alpha_affine':(0.07, 0.13), 'random_state':None}
-           
-    return augment_params_dict
-
-def setup_preprocessing(args):
-    img_means = RCCDatasetManager.img_means
-    img_std = RCCDatasetManager.img_std
-
-
-    gray_mean = RCCDatasetManager.gray_mean
-    gray_std = RCCDatasetManager.gray_std
-
-    totensor = transforms.ToTensor() 
-    img_train_transforms_list = [totensor]
-    img_test_transforms_list = [totensor]
-
-    means = img_means
-    st_deviations = img_std
-    if args.format == 'gray': # images are from the start in RGB format, so a transformation is required only for the Grayscale case
-            grayscale = transforms.Grayscale()
-            img_train_transforms_list.append(grayscale)
-            img_test_transforms_list.append(grayscale)
-            means = gray_means
-            st_deviations = gray_std
-
-
-    if args.std:
-            normalize = transforms.Normalize(means, st_deviations)
-            img_train_transforms_list.append(normalize)
-            img_test_transforms_list.append(normalize)
-
-    img_train_transform = transforms.Compose(img_train_transforms_list) 
-    img_test_transform = transforms.Compose(img_test_transforms_list)
-
-    seg_train_transform = transforms.Compose([transforms.ToTensor()] )
-    seg_test_transform = transforms.Compose([transforms.ToTensor()] )
-
-    return (img_train_transform, img_test_transform), (seg_train_transform, seg_test_transform)
 
 
 
@@ -277,62 +182,6 @@ if __name__ == "__main__":
         default=0.0001,
         help="initial learning rate (default: 0.0001)",
     )
-
-
-
-
-    parser.add_argument(
-        "--std",
-        type=bool,
-        default=True,
-        help="standardize slide images according to the channel statistics (default: True)",
-    )
-    parser.add_argument(
-        "--std-by-patient",
-        type=bool,
-        default=False,
-        help="compute mean and variance for each 'train' split patient\n and standardize each of their samples by their own statistics: test samples are standardized according to the average mean and pooled variance (default: False)",
-    )
-    parser.add_argument(
-        "--format",
-        type=str,
-        default="rgb",
-        help="slide image format:['rgb','gray'] (default is rgb)",
-    )
-
-
-
-
-
-
-
-    parser.add_argument(
-        "--rand-rot",
-        type=bool,
-        default=False,
-        help="random rotations (90,180,270 degrees) data augmentation  (default: False)",
-    )
-    parser.add_argument(
-        "--rand-crop",
-        type=bool,
-        default=False,
-        help="random crop and zoom (keep from 0.7 to 1.0 of the original image ) data augmentation (default: False)"
-    )
-
-    parser.add_argument(
-        "--rand-elastic-deform",
-        type=bool,
-        default=False,
-        help="elastic deformation (default: False):\n\t\t\t"+\
-                                            "alpha in [1,4]\n\t\t\t" +\
-                                            "sigma in [0.07, 0.13]\n\t\t\t"+\
-                                             "alpha affine in [0.07, 0.13]"
-    )
-
-
-
-
-
 
 
 
