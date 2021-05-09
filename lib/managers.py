@@ -24,21 +24,22 @@ from functools import  reduce
 from operator import itemgetter
 import matplotlib.pyplot as plt
 import sys
-
-
-from utils import DriveDownloader, recursive_visit
-from datasets import RCCStorage, RCCImageSubset, RCCImageDataset, CropDataset
-from patient_utils import Patient, find_position, map_patients_to_ids, reduce_bykey
-from processing_utils import ToGraphTransform
-from image_utils import binarize_to_numpy
 from torch_geometric.data import Data
+
+from data.utils import DriveDownloader, recursive_visit
+from data.datasets import RCCStorage, RCCImageSubset, RCCImageDataset, CropDataset
+from data.patient_utils import Patient, find_position, map_patients_to_ids, reduce_bykey
+from data.processing_utils import ToGraphTransform
+from data.metrics import IoU
+from data.image_utils import read_image
+from data.log_utils import ExperimentLogger
+from data.image_utils import binarize_to_numpy
+
 from train_segmentation_methods import train_segmentation_model, train_crop_segmentation_model,  validate_segmentation
 from train_clf_methods import train_classifier, test_classifier
 from train_graph_nn import train_test_torch_gcn
 from train_sg_graph_nn import create_graph_classification_model
-from metrics import IoU
-from image_utils import read_image
-from log_utils import ExperimentLogger
+
 
 
 

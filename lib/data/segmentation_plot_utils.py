@@ -10,10 +10,10 @@ from torch.utils.data import DataLoader
 import torchvision.utils as vutils
 import matplotlib.pyplot as plt
 
-from log_utils import OverlaySegmentationLogger
-from log_utils import ExperimentLogger
-from metrics import IoU
-from processing_utils import UnNormalize
+from .log_utils import OverlaySegmentationLogger
+from .log_utils import ExperimentLogger
+from .metrics import IoU
+from .processing_utils import UnNormalize
 
 
 def test_segmentation_overlay_plots(test_dataloader, net, img_means=None, img_std=None, figsize=(14,14)):

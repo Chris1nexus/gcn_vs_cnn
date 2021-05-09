@@ -8,7 +8,7 @@ import sys
 from tqdm import tqdm
 
 
-from log_utils import ExperimentLogger
+from data.log_utils import ExperimentLogger
 
 
 def train_classifier(log_weights_path,  train_dataloader, val_dataloader, model, learning_rate=0.0001,n_epochs=10, verbose=True,weights_filename="torch_weights.pt"):

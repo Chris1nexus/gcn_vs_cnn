@@ -11,8 +11,8 @@ import pandas as pd
 from torch_geometric.data import Data
 import cv2
 
-from graph_utils import GraphItem, GraphItemLogs, ConnectedComponentCV2
-from image_utils import remove_isolated, is_on
+from .graph_utils import GraphItem, GraphItemLogs, ConnectedComponentCV2
+from .image_utils import remove_isolated, is_on
 import matplotlib.pyplot as plt
 import imageio
 from skimage.morphology import skeletonize 

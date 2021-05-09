@@ -124,16 +124,17 @@ def main(args):
                       **kwargs_dict)
         print("AdaptUnet training completed")
         
-        plot_results(args, loss_train, loss_validation, IOU_train, IOU_validation, metric_name='IoU')
-        plot_results(args, pretext_loss, pretext_loss, pretext_acc, pretext_acc, metric_name='pretext_accuracy')
-
-
-
-
-
-
-def plot_results(args, train_loss, val_loss, train_metric, val_metric, metric_name='accuracy'):
         img_file_path = os.path.join(args.weights_dir, args.weights_fname +"_train.png")
+        plot_results(img_file_path, loss_train, loss_validation, IOU_train, IOU_validation, metric_name='IoU')
+        img_file_path = os.path.join(args.weights_dir, args.weights_fname +"_pretext_train.png")
+        plot_results(img_file_path, pretext_loss, pretext_loss, pretext_acc, pretext_acc, metric_name='pretext_accuracy')
+
+
+
+
+
+
+def plot_results(img_file_path, train_loss, val_loss, train_metric, val_metric, metric_name='accuracy'):
         fig = plt.figure(figsize=(12,4))
         loss_fig = fig.add_subplot(121)
         loss_fig.plot(train_loss)

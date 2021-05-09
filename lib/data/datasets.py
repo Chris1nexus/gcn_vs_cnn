@@ -9,13 +9,12 @@ from PIL import Image
 import numpy as np
 
 
-from processing_utils import ToGraphTransform
-from image_utils import get_segmentation_mask, read_image
-from utils import DriveDownloader
-from processing_utils import ToGraphTransform
-from image_utils import np_make_crops, np_recompose_tensor,  img_paste_fn, seg_paste_fn, read_image, get_segmentation_mask
-from utils import recursive_visit, DriveDownloader
-from augmentation_utils import AugmentTransform
+from .processing_utils import ToGraphTransform
+from .image_utils import get_segmentation_mask, read_image
+from .utils import DriveDownloader
+from .image_utils import np_make_crops, np_recompose_tensor,  img_paste_fn, seg_paste_fn, read_image, get_segmentation_mask
+from .utils import recursive_visit, DriveDownloader
+from .augmentation_utils import AugmentTransform
 
 
 

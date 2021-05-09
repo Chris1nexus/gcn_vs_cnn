@@ -5,7 +5,7 @@ from IPython.display import display, HTML
 from matplotlib.animation import PillowWriter
 import imageio
 
-from augmentation_utils import helper_elastic_transform
+from .augmentation_utils import helper_elastic_transform
 
 def ipyDisplay(torchTensor): 
   '''
