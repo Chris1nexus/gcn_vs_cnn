@@ -11,8 +11,8 @@ import sys
 import cv2
 from tqdm import tqdm
 
-from data.log_utils import ExperimentLogger
-from data.metrics import IoU
+from .data.log_utils import ExperimentLogger
+from .data.metrics import IoU
 
 
 def train_segmentation_model(log_weights_path,  train_dataloader, val_dataloader, model, 
