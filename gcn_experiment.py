@@ -25,7 +25,7 @@ from lib.data.graph_utils import GraphItem, ConnectedComponentCV2, GraphItemLogs
 from lib.data.image_utils import is_on, remove_isolated
 from lib.data.processing_utils import UnNormalize
 from lib.data.processing_utils import ToGraphTransform
-from lib.neural_nets import UNet, GCN
+from lib.models.neural_nets import UNet, GCN
 from lib.managers import RCCDatasetManager, ExperimentManager
 
 
