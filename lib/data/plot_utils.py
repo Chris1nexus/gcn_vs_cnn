@@ -85,3 +85,56 @@ def plot_elastic_transform(img, seg_gt, alpha=(1,10), sigma=(0.08, 0.5), alpha_a
 
     seg_gt_transformed = fig.add_subplot(224)
     seg_gt_transformed.imshow(res_seg_gt, cmap='gray')
+
+
+def grid_plot_elastic_transform(image, segmentation, alpha=(1,4), sigma=(0.08, 0.13), alpha_affine=(0.07, 0.13), random_state=None):
+  '''
+  Apply the same random elastic deformations to the given image-mask pair
+  Values of the parameters of the deformations that preserve the image information are:
+          -alpha in [1, 5]
+          -sigma in [0.08,0.13]
+          -alpha_affine in [0.07, 0.13]
+  Values outside these ranges can result in too much distortion in the resulting augmented image 
+  Args: 
+          -image (np.array dtype=np.uint8)
+          -mask (np.array dtype=np.uint8)
+          -alpha in [1, 5] (tuple)
+          -sigma in [0.08,0.13]  (tuple)
+          -alpha_affine in [0.07, 0.13] (tuple)
+          -random_state (default None)
+  Returns:
+          -transformed image (np.array dtype=np.uint8)
+          -transformed mask (np.array dtype=np.uint8)
+  '''
+
+  alpha_multiplier = random.randint(*alpha) 
+  sigma_multiplier = random.uniform(*sigma)
+  alpha_affine_multiplier = random.uniform(*alpha_affine)
+
+  im = (np.mean(img,axis=2)*255).astype(np.uint8)
+  im_mask = (segmentation*255).astype(np.uint8)
+  draw_grid(im, 50)
+  draw_grid(im_mask, 50)
+
+  im_merge_plot = np.concatenate((im[...,None], im_mask[...,None]), axis=2)
+  im_merge_t_plot = elastic_transform(im_merge_plot, im_merge_plot.shape[1] * alpha_multiplier, im_merge_plot.shape[1] * sigma_multiplier, im_merge_plot.shape[1] * alpha_affine_multiplier)
+
+  im_t_plot = im_merge_t_plot[...,0]
+  im_mask_t_plot = im_merge_t_plot[...,-1]
+
+  #im_t_plot = #(np.mean(im_t,axis=2)*255).astype(np.uint8)
+  #im_mask_t_plot = #(im_mask_t*255).astype(np.uint8)
+  
+  # Display result
+  plt.figure(figsize = (16,14))
+  plt.imshow(np.c_[np.r_[im, im_mask], np.r_[im_t_plot, im_mask_t_plot]], cmap='gray')
+
+  
+def draw_grid(im, grid_size):
+    # Draw grid lines
+    for i in range(0, im.shape[1], grid_size):
+        cv2.line(im, (i, 0), (i, im.shape[0]), color=(255,))
+    for j in range(0, im.shape[0], grid_size):
+        cv2.line(im, (0, j), (im.shape[1], j), color=(255,))
+
+
