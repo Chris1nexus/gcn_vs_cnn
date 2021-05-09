@@ -196,7 +196,7 @@ def setup_preprocessing(args):
             grayscale = transforms.Grayscale()
             img_train_transforms_list.append(grayscale)
             img_test_transforms_list.append(grayscale)
-            means = gray_means
+            means = gray_mean
             st_deviations = gray_std
 
 
