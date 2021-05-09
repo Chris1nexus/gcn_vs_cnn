@@ -6,12 +6,12 @@ import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
 from torch.utils.data import DataLoader
-from log_utils import ExperimentLogger
 import torchvision.utils as vutils
 import sys
 import cv2
 from tqdm import tqdm
 
+from data.log_utils import ExperimentLogger
 from data.metrics import IoU
 
 
