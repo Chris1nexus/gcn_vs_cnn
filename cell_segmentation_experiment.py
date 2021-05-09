@@ -17,10 +17,7 @@ from matplotlib.animation import PillowWriter
 
 
 
-from neural_nets import AdaptUnet
-
-
-
+from lib.neural_nets import AdaptUnet
 from lib.data.datasets import CellDataset
 from lib.data.datasets import CropDataset
 from torch.utils.data import DataLoader
