@@ -1,5 +1,5 @@
 from torchvision import transforms
-
+import matplotlib.pyplot as plt
 import matplotlib.animation as animation  
 from IPython.display import display, HTML
 from matplotlib.animation import PillowWriter
