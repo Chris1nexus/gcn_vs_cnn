@@ -21,11 +21,11 @@ from neural_nets import AdaptUnet
 
 
 
-from datasets import CellDataset
-from datasets import CropDataset
+from lib.data.datasets import CellDataset
+from lib.data.datasets import CropDataset
 from torch.utils.data import DataLoader
-from datasets import import_data
-from train_segmentation_methods import train_adaptation_unet
+from lib.data.datasets import import_data
+from lib.train_segmentation_methods import train_adaptation_unet
 def main(args):
         
         #os.system('mkdir content')

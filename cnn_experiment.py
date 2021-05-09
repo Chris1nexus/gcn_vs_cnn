@@ -5,16 +5,16 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  
 import tensorflow as tf
 
-from plot_utils import ipyDisplay
-from graph_utils import estimate_graph_statistics
-from graph_utils import GraphItem, ConnectedComponentCV2, GraphItemLogs
-from image_utils import is_on, remove_isolated
-from processing_utils import UnNormalize
-from processing_utils import ToGraphTransform
-from neural_nets import UNet
+from lib.data.plot_utils import ipyDisplay
+from lib.data.graph_utils import estimate_graph_statistics
+from lib.data.graph_utils import GraphItem, ConnectedComponentCV2, GraphItemLogs
+from lib.data.image_utils import is_on, remove_isolated
+from lib.data.processing_utils import UnNormalize
+from lib.data.processing_utils import ToGraphTransform
+from lib.neural_nets import UNet
 
 
-from managers import RCCDatasetManager, ExperimentManager
+from lib.managers import RCCDatasetManager, ExperimentManager
 import numpy as np
 import os
 import torch.nn as nn
