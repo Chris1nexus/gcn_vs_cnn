@@ -88,10 +88,11 @@ def test_classifier_gradcam(model, target_layer, dataloader,
       grayscale_cam_predicted = cam(input_tensor=input_tensor, target_category=predicted)
       print(rgb_img.shape)
       print(grayscale_cam_predicted.shape)
-      visualization_predicted = show_cam_on_image(rgb_img, grayscale_cam_predicted)
+      print(input_tensor.shape)
+      visualization_predicted = show_cam_on_image(rgb_img, grayscale_cam_predicted.squeeze())
 
       grayscale_cam_not_predicted = cam(input_tensor=input_tensor, target_category=not_predicted)
-      visualization_not_predicted = show_cam_on_image(rgb_img, grayscale_cam_not_predicted)
+      visualization_not_predicted = show_cam_on_image(rgb_img, grayscale_cam_not_predicted.squeeze())
 
       if correct:
         correct_prediction_str = "correct"
