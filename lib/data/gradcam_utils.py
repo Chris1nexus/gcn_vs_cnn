@@ -86,8 +86,8 @@ def test_classifier_gradcam(model, target_layer, dataloader,
       rgb_img = (unnorm(img[idx].cpu()).permute(1,2,0).numpy()).clip(0.,1.)#rgb_img = unnorm(img[idx].cpu()).permute(1,2,0).numpy()
       
       grayscale_cam_predicted = cam(input_tensor=input_tensor, target_category=predicted)
-      print(type(rgb_img))
-      print(type(grayscale_cam_predicted))
+      print(rgb_img.dtype)
+      print(grayscale_cam_predicted.dtype)
       visualization_predicted = show_cam_on_image(rgb_img, grayscale_cam_predicted)
 
       grayscale_cam_not_predicted = cam(input_tensor=input_tensor, target_category=not_predicted)
