@@ -86,9 +86,6 @@ def test_classifier_gradcam(model, target_layer, dataloader,
       rgb_img = (unnorm(img[idx].cpu()).permute(1,2,0).numpy()).clip(0.,1.)#rgb_img = unnorm(img[idx].cpu()).permute(1,2,0).numpy()
       
       grayscale_cam_predicted = cam(input_tensor=input_tensor, target_category=predicted)
-      print(rgb_img.shape)
-      print(grayscale_cam_predicted.shape)
-      print(input_tensor.shape)
       visualization_predicted = show_cam_on_image(rgb_img, grayscale_cam_predicted.squeeze())
 
       grayscale_cam_not_predicted = cam(input_tensor=input_tensor, target_category=not_predicted)
@@ -103,12 +100,12 @@ def test_classifier_gradcam(model, target_layer, dataloader,
 
       fig = plt.figure(figsize=(14,10))
  
-      gradcam_predicted = fig.add_subplot(121)
+      gradcam_predicted = fig.add_subplot(131)
       gradcam_predicted.imshow(visualization_predicted)
       gradcam_predicted.imshow(curr_mask, cmap='jet', alpha=0.2)
       gradcam_predicted.title.set_text('ROI of the prediction: ' + str(mapper_to_categorical[predicted]) + " probability=%.1f"%(confidence_proba[predicted]*100) \
                                        + "%\n" + correct_prediction_str + " prediction")
-      raw = fig.add_subplot(122)
+      raw = fig.add_subplot(132)
 
       if 1 in rgb_img.shape:
         raw.imshow(rgb_img.squeeze(), cmap='gray')
@@ -116,9 +113,10 @@ def test_classifier_gradcam(model, target_layer, dataloader,
         raw.imshow(rgb_img.squeeze())
       raw.imshow(curr_mask, cmap='jet', alpha=0.2)
       raw.title.set_text('Raw slide patch: '+ str(mapper_to_categorical[ground_truth]))
-      #gradcam_not_predicted = fig.add_subplot(133)
-      #gradcam_not_predicted.imshow(visualization_not_predicted)
-      #gradcam_not_predicted.title.set_text('ROI of the excluded prediction: '+ str(mapper_to_categorical[not_predicted]) )
+
+      gradcam_not_predicted = fig.add_subplot(133)
+      gradcam_not_predicted.imshow(visualization_not_predicted)
+      gradcam_not_predicted.title.set_text('ROI of the excluded prediction: '+ str(mapper_to_categorical[not_predicted]) )
       #fig.canvas.draw()
       #pil_img = Image.frombytes('RGB', fig.canvas.get_width_height(),fig.canvas.tostring_rgb())
       fig.tight_layout()
