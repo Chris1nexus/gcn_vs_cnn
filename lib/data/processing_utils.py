@@ -511,6 +511,6 @@ class ToGraphTransform(object):
         op_sequence = graph_item.graph_creation_logs.get_opseq()
         if op_sequence is not None:
             kargs = { 'duration': duration}
-            git_path = os.path.join(gif_filepath,gif_filename)
-            imageio.mimsave(git_path, graph_item.graph_creation_logs.get_opseq().values()[:-3],'GIF',**kargs)
+            gif_path = os.path.join(gif_filepath,gif_filename)
+            imageio.mimsave(gif_path, list(graph_item.graph_creation_logs.get_opseq().values())[:-3],'GIF',**kargs)
 
