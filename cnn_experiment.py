@@ -130,6 +130,7 @@ def main(args):
                     img_file_path = os.path.join(args.weights_dir, args.weights_fname +"_train.png")
                     plot_results(img_file_path, train_loss_folds_average, val_loss_folds_average, train_acc_folds_average, val_acc_folds_average, metric_name='accuracy')
                     boxplot_file_path = os.path.join(args.weights_dir, "test_accuracy_boxplot.png")
+                    print(test_acc_folds)
                     plt.boxplot(test_acc_folds)
                     plt.savefig(boxplot_file_path)
                     #best_model, train_acc_folds_average, val_acc_folds_average, train_loss_folds_average, val_loss_folds_average, test_acc_folds
