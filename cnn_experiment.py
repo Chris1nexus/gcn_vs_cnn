@@ -113,7 +113,7 @@ def main(args):
                           train_loss_folds.append(loss_train)
                           val_loss_folds.append(loss_validation)
                          
-                          test_acc_folds.append( test_accuracy[-1])
+                          test_acc_folds.append( np.mean([ acc.item() for acc in test_accuracy  ]) )
 
                           print(f"validation accuracy: {acc_validation[-1]}")
                           if loss_validation[-1] <  min_loss:
