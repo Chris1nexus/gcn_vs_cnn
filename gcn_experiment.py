@@ -173,6 +173,7 @@ def main(args):
 
 
         boxplot_file_path = os.path.join(args.weights_dir, "test_accuracy_boxplot.png")
+        plt.figure()
         plt.boxplot(test_acc_folds)
         plt.savefig(boxplot_file_path)
 
