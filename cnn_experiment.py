@@ -73,6 +73,9 @@ def main(args):
 
                     best_model = model
                     min_loss = sys.float_info.max
+
+
+
                     for i, (train_index, validation_index) in enumerate(stratified_folds):
                           print(f"Fold {i+1} of {folds}")
                           curr_model = copy.deepcopy(model)
@@ -126,7 +129,9 @@ def main(args):
                     #test_loss_folds_average = np.array(test_loss_folds).mean(axis=0)
                     img_file_path = os.path.join(args.weights_dir, args.weights_fname +"_train.png")
                     plot_results(img_file_path, train_loss_folds_average, val_loss_folds_average, train_acc_folds_average, val_acc_folds_average, metric_name='accuracy')
-
+                    boxplot_file_path = os.path.join(args.weights_dir, "test_accuracy_boxplot.png")
+                    plt.boxplot(test_acc_folds)
+                    plt.savefig(boxplot_file_path)
                     #best_model, train_acc_folds_average, val_acc_folds_average, train_loss_folds_average, val_loss_folds_average, test_acc_folds
         #model =  torch.hub.load('pytorch/vision:v0.9.0', 'vgg', pretrained=False,num_classes=2)
         else:

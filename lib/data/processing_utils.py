@@ -472,7 +472,7 @@ class ToGraphTransform(object):
             joint_labels = graph_item.joints_cc.labels
 
             # obtain v1 location and that of all its edges
-            v1_highlight = highlight_component(graph_item,
+            v1_highlight = ToGraphTransform.highlight_component(graph_item,
                             v1, 
                             comp_type='node_edges', 
                             highlight_image=None, 
@@ -512,5 +512,5 @@ class ToGraphTransform(object):
         if op_sequence is not None:
             kargs = { 'duration': duration}
             gif_path = os.path.join(gif_filepath,gif_filename)
-            imageio.mimsave(gif_path, list(graph_item.graph_creation_logs.get_opseq().values())[:-3],'GIF',**kargs)
+            imageio.mimsave(gif_path, list(graph_item.graph_creation_logs.get_opseq().values()) [:-3],'GIF',**kargs)
 

@@ -148,6 +148,7 @@ def main(args):
                                       verbose=True,verbose_epochs_accuracy=False)
                 print("GCN training completed")
                 plot_results(args, train_loss_folds_average, val_loss_folds_average, train_acc_folds_average, val_acc_folds_average, metric_name='accuracy')
+
         else:
                 torch_train, train_labels = RCCDatasetManager.make_torch_graph_dataset(sample_dataset_graph_items, sample_dataset_graph_labels,
                                                   loading_prompt_string=None)
@@ -171,7 +172,9 @@ def main(args):
                 plot_results(args, train_loss_folds_average, val_loss_folds_average, train_acc_folds_average, val_acc_folds_average, metric_name='accuracy')
 
 
-
+        boxplot_file_path = os.path.join(args.weights_dir, "test_accuracy_boxplot.png")
+        plt.boxplot(test_acc_folds)
+        plt.savefig(boxplot_file_path)
 
 
 

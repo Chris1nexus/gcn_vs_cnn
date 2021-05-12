@@ -43,7 +43,7 @@ def create_graph_classification_model(generator, hidden_layer_sizes=(64, 64, 64,
     )
     x_inp, x_out = gc_model.in_out_tensors()
 
-    #predictions = Dense(units=32, activation="relu")(x_out)
+ 
     predictions = Dense(units=1, activation="sigmoid")(x_out)
 
     model = Model(inputs=x_inp, outputs=predictions)
