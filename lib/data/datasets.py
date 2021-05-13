@@ -269,8 +269,8 @@ class CropDataset(Dataset):
           tmp_destination = './dataset.zip'
           target_directory = './rccdataset'
           target_path = os.path.join(target_directory, "vascular_segmentation")
-          if (not os.path.exists(target_path) or root_path is None) or \
-                              ( root_path is not None and ("vascular_segmentation" not in root_path or not os.path.exists(root_path))  ):
+          if not os.path.exists(root_path) or root_path is None or \
+                              ( root_path is not None and "vascular_segmentation" not in root_path   ):
             # if root path is none and the downloaded dataset folder does not exist OR 
             # root path is NOT none and (it does not contain vascular segmentation OR it does not exist)
             # we download the dataset on the folder
