@@ -201,7 +201,7 @@ def setup_augmentation(args):
     augment_params_dict = dict()
     
     if args.rand_rot:
-            augment_params_dict['rotate'] = {'prob':1.0,'angle_range': 30}
+            augment_params_dict['rotate'] = {'prob':1.0}
             
     if args.rand_crop:
             augment_params_dict['resized_crop'] = {'prob':1.0, 'original_kept_crop_percent':(0.7,1.0)}
