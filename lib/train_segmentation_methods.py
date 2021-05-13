@@ -375,8 +375,8 @@ def train_crop_segmentation_model(log_weights_path,  train_dataloader, val_datal
                   best_validaton_BCE = mean_validation_loss
                   torch.save(model.state_dict(), os.path.join(unet_weights_folder_path, weights_filename))
                 if verbose_loss_acc:
-                  print("valid: ", mean_validation_loss)
-                  print("iou_valid: ", np.mean(IOU_validation_epoch))
+                  print("\nvalidation loss: ", mean_validation_loss)
+                  print("validation iou: ", np.mean(IOU_validation_epoch))
                 loss_validation.append(mean_validation_loss)
                 IOU_validation.append(np.mean(IOU_validation_epoch))
 
@@ -498,8 +498,8 @@ def train_cell_segmentation_model(log_weights_path,  train_dataloader, val_datal
                   best_validaton_BCE = mean_validation_loss
                   torch.save(model.state_dict(), os.path.join(unet_weights_folder_path, weights_filename))
                 if verbose_loss_acc:
-                  print("valid: ", mean_validation_loss)
-                  print("iou_valid: ", np.mean(IOU_validation_epoch))
+                  print("\nvalidation loss: ", mean_validation_loss)
+                  print("validation iou: ", np.mean(IOU_validation_epoch))
                 loss_validation.append(mean_validation_loss)
                 IOU_validation.append(np.mean(IOU_validation_epoch))
 
@@ -725,8 +725,8 @@ def train_adaptation_unet(model ,
                   best_validaton_BCE = mean_validation_loss
                   torch.save(model.state_dict(), os.path.join(unet_weights_folder_path, weights_filename))
                 if verbose_loss_acc:
-                  print("valid: ", mean_validation_loss)
-                  print("iou_valid: ", np.mean(IOU_validation_epoch))
+                  print("\nvalidation loss: ", mean_validation_loss)
+                  print("validation iou: ", np.mean(IOU_validation_epoch))
                 loss_validation.append(mean_validation_loss)
                 IOU_validation.append(np.mean(IOU_validation_epoch))
 

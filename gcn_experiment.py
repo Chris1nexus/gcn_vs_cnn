@@ -169,6 +169,7 @@ def main(args):
                                       n_repeats = 1,
                                       verbose=True,verbose_epochs_accuracy=False)
                 print("GCN training completed")
+                print(test_acc_folds)
                 plot_results(args, train_loss_folds_average, val_loss_folds_average, train_acc_folds_average, val_acc_folds_average, metric_name='accuracy')
 
 
@@ -320,7 +321,7 @@ if __name__ == "__main__":
         "--gcn-type",
         type=str,
         default="torch",
-        help="gcn library that implementst the GCN: ['torch', 'sg']\n\t\t 'torch' is the torch geometric library"+\
+        help="gcn library that implements the GCN(default torch): ['torch', 'sg']\n\t\t 'torch' is the torch geometric library"+\
         														"\n\t\t 'sg' is the stellargraph library",
     )
 
@@ -332,7 +333,7 @@ if __name__ == "__main__":
         "--dataset",
         type=str,
         default="unet",
-        help="dataset on which the GCN is trained: ['unet', 'gt']\n\t\t 'unet' is the graph dataset created from predicted segmentation masks"+\
+        help="dataset on which the GCN is trained (default unet): ['unet', 'gt']\n\t\t 'unet' is the graph dataset created from predicted segmentation masks"+\
         														"\n\t\t 'gt' is the graph dataset created from ground truth masks",
     )
     parser.add_argument(
