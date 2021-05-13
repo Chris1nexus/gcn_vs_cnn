@@ -12,6 +12,11 @@ from torch_geometric.data import Data
 import cv2
 import os
 
+from networkx.drawing.nx_agraph import graphviz_layout, to_agraph
+import pygraphviz as pgv
+import networkx as nx
+import matplotlib.pyplot as plt
+
 
 from .graph_utils import GraphItem, GraphItemLogs, ConnectedComponentCV2
 from .image_utils import remove_isolated, is_on
@@ -499,12 +504,24 @@ class ToGraphTransform(object):
 #graph_item = gt.graph_transform( (seg_gt*255.).astype(np.uint8), log_procedure=True)
 
     @staticmethod
-    def plot_graph_data_structure(graph_item,figsize=(10,10)):
+    def plot_graph_data_structure(graph_item,figsize=(12,12)):
         import networkx as nx
         G = nx.Graph(graph_item.adjacencyMatrix)
         plt.figure(figsize=figsize)
-        nx.draw(G)
+        nx.draw(G, node_color='#e0e0e0',with_labels=True)
         plt.axis('equal')
+
+
+        plt.figure()
+        A = to_agraph(G)
+        #print(A)
+        A.layout('dot')
+        A.draw('pygraphviz_graph_layout.png')
+    
+        plt.figure(figsize=figsize)
+        plt.imshow(ToGraphTransform.plot_all(graph_item))
+        plt.imshow(bin_mask, cmap='jet', alpha=0.2)
+        plt.savefig("original_image.png")
     @staticmethod
     def plot_graph_creation_phases(graph_item, duration=1.0, gif_filepath="./", gif_filename="opseq.gif"):
         import imageio
