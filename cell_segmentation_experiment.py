@@ -71,7 +71,7 @@ def main(args):
                                                  transforms.Grayscale(num_output_channels=1)])
         seg_test_transform = transforms.Compose([transforms.ToTensor()])
 
-        dataset_root_path = args.root_path
+        dataset_root_path = args.images
         IMAGE_SIDE_LEN = 2048
         CROPS_PER_SIDE = 4
         VERBOSE = True
