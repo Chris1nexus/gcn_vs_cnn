@@ -113,7 +113,13 @@ def train_classifier(log_weights_path,  train_dataloader, val_dataloader, model,
                 mean_validation_loss = np.mean(loss_validation_epoch)
                 if mean_validation_loss < best_validaton_BCE:
                   best_validaton_BCE = mean_validation_loss
-                  torch.save(model.state_dict(), os.path.join(log_weights_path, weights_filename))
+                  #torch.save(model.state_dict(), os.path.join(log_weights_path, weights_filename))
+                  PATH = os.path.join(log_weights_path, weights_filename)
+                  torch.save({
+                        'epoch': epoch,
+                        'model_state_dict': model.state_dict(),
+                        'optimizer_state_dict': optimizer.state_dict(),
+                        }, PATH)
                 if verbose:
                 	print("valid loss: ", mean_validation_loss)
                 	print("acc_valid: ", np.mean(acc_validation_epoch))

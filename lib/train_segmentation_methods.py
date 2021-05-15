@@ -128,7 +128,14 @@ def train_segmentation_model(log_weights_path,  train_dataloader, val_dataloader
                 mean_validation_loss = np.mean(loss_validation_epoch)
                 if mean_validation_loss < best_validaton_BCE:
                   best_validaton_BCE = mean_validation_loss
-                  torch.save(model.state_dict(), os.path.join(log_weights_path, weights_filename))
+
+                  PATH = os.path.join(log_weights_path, weights_filename)
+                  torch.save({
+                        'epoch': epoch,
+                        'model_state_dict': model.state_dict(),
+                        'optimizer_state_dict': optimizer.state_dict(),
+                        }, PATH)
+ 
                 if verbose_loss_acc:
                   print("valid: ", mean_validation_loss)
                   print("iou_valid: ", np.mean(IOU_validation_epoch))
@@ -373,7 +380,12 @@ def train_crop_segmentation_model(log_weights_path,  train_dataloader, val_datal
                 mean_validation_loss = np.mean(loss_validation_epoch)
                 if mean_validation_loss < best_validaton_BCE:
                   best_validaton_BCE = mean_validation_loss
-                  torch.save(model.state_dict(), os.path.join(unet_weights_folder_path, weights_filename))
+                  PATH = os.path.join(unet_weights_folder_path, weights_filename)
+                  torch.save({
+                        'epoch': epoch,
+                        'model_state_dict': model.state_dict(),
+                        'optimizer_state_dict': optimizer.state_dict(),
+                        }, PATH)
                 if verbose_loss_acc:
                   print("\nvalidation loss: ", mean_validation_loss)
                   print("validation iou: ", np.mean(IOU_validation_epoch))
@@ -496,7 +508,14 @@ def train_cell_segmentation_model(log_weights_path,  train_dataloader, val_datal
                 mean_validation_loss = np.mean(loss_validation_epoch)
                 if mean_validation_loss < best_validaton_BCE:
                   best_validaton_BCE = mean_validation_loss
-                  torch.save(model.state_dict(), os.path.join(unet_weights_folder_path, weights_filename))
+
+                  PATH = os.path.join(unet_weights_folder_path, weights_filename)
+                  torch.save({
+                        'epoch': epoch,
+                        'model_state_dict': model.state_dict(),
+                        'optimizer_state_dict': optimizer.state_dict(),
+                        }, PATH)
+                  
                 if verbose_loss_acc:
                   print("\nvalidation loss: ", mean_validation_loss)
                   print("validation iou: ", np.mean(IOU_validation_epoch))
@@ -723,7 +742,14 @@ def train_adaptation_unet(model ,
                 mean_validation_loss = np.mean(loss_validation_epoch)
                 if mean_validation_loss < best_validaton_BCE:
                   best_validaton_BCE = mean_validation_loss
-                  torch.save(model.state_dict(), os.path.join(unet_weights_folder_path, weights_filename))
+
+                  PATH = os.path.join(unet_weights_folder_path, weights_filename)
+                  torch.save({
+                        'epoch': epoch,
+                        'model_state_dict': model.state_dict(),
+                        'optimizer_state_dict': optimizer.state_dict(),
+                        }, PATH)
+
                 if verbose_loss_acc:
                   print("\nvalidation loss: ", mean_validation_loss)
                   print("validation iou: ", np.mean(IOU_validation_epoch))
