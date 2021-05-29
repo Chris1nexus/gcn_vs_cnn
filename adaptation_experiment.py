@@ -331,6 +331,9 @@ def main(args):
         train_processed_dataloader = DataLoader(train_transformed_sample_list,batch_size=batch_size, shuffle=True, num_workers=num_workers)
         test_processed_dataloader = DataLoader(test_transformed_sample_list,batch_size=batch_size, shuffle=True, num_workers=num_workers)
 
+
+        if not os.path.exists( args.weights_dir):
+            os.makedirs( args.weights_dir)
         print("Unet training started: storing results in {}".format(args.weights_dir))
         loss_train, loss_validation, IOU_train, IOU_validation, model, segmentation_progress = train_segmentation_model("log_weights_dir",  train_processed_dataloader, test_processed_dataloader, unet_model,
                               learning_rate=0.00005,
