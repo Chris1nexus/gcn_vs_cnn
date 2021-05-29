@@ -288,13 +288,13 @@ if __name__ == "__main__":
         "--std",
         type=bool,
         default=True,
-        help="standardize images according to the channel statistics",
+        help="standardize images according to the channel statistics (default True)",
     )
     parser.add_argument(
         "--std-by-patient",
         type=bool,
         default=False,
-        help="compute mean and variance for each 'train' split patient\n and standardize each of their samples by their own statistics: test samples are standardized according to the average mean and pooled variance",
+        help="(default False) compute mean and variance for each 'train' split patient\n and standardize each of their samples by their own statistics: test samples are standardized according to the average mean and pooled variance",
     )
     parser.add_argument(
         "--format",
