@@ -343,7 +343,8 @@ def main(args):
         
         print("Unet training completed")
         plot_segmentation_progress(segmentation_progress, args.weights_dir)
-        plot_results(args, loss_train, loss_validation, IOU_train, IOU_validation, metric_name='IoU')
+        img_file_path = os.path.join(args.weights_dir,  "unet_metrics.png")
+        plot_results(img_file_path, loss_train, loss_validation, IOU_train, IOU_validation, metric_name='IoU')
                     
 
 
