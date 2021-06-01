@@ -775,11 +775,14 @@ def train_adaptation_unet(model ,
                                                   mask.unsqueeze(1).float(), padding=2, nrow=5)
                                                   .cpu(),(1,2,0))
                                               progress.append( (idx, pred_grid, true_grid ) )
+
+
+                                segmentation_progress.append( (epoch, progress)  )
                                   
                                 del img
                                 del mask
                                 del y_pred
-                          segmentation_progress.append( (epoch, progress)  )
+                                
                 loss_validation.append(mean_validation_loss)
                 IOU_validation.append(np.mean(IOU_validation_epoch))
 
