@@ -600,6 +600,9 @@ def train_adaptation_unet(model ,
 
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
+    evaluation_batch = next(iter(source_validation_dataiter))
+    segmentation_progress = []
+
     IOU_train = []
     IOU_validation = []
     loss_train = []
@@ -753,9 +756,34 @@ def train_adaptation_unet(model ,
                 if verbose_loss_acc:
                   print("\nvalidation loss: ", mean_validation_loss)
                   print("validation iou: ", np.mean(IOU_validation_epoch))
+
+
+                for idx, batch in enumerate(evaluation_batch):
+                                img, mask = batch 
+                                          
+                                img, mask  = img.to(device).float(), mask.long().squeeze().to(device)
+                      
+                                with torch.set_grad_enabled(phase == "train"):
+                                              y_pred = model(img)
+                                              softmax = nn.Softmax(dim=1)
+                                              y_pred_binarized = softmax(y_pred).argmax(dim=1)
+                    
+                                              pred_grid = np.transpose(vutils.make_grid(
+                                                  y_pred_binarized.detach().float(), padding=2, nrow=5)
+                                                  .cpu(),(1,2,0))
+                                              true_grid = np.transpose(vutils.make_grid(
+                                                  mask.unsqueeze(1).float(), padding=2, nrow=5)
+                                                  .cpu(),(1,2,0))
+                                              progress.append( (idx, pred_grid, true_grid ) )
+                                  
+                                del img
+                                del mask
+                                del y_pred
+                          segmentation_progress.append( (epoch, progress)  )
                 loss_validation.append(mean_validation_loss)
                 IOU_validation.append(np.mean(IOU_validation_epoch))
 
                 loss_validation_epoch = []
                 IOU_validation_epoch = []
-    return loss_train, loss_validation, IOU_train, IOU_validation, pretext_loss, pretext_acc, model
+
+    return loss_train, loss_validation, IOU_train, IOU_validation, pretext_loss, pretext_acc, model, segmentation_progress

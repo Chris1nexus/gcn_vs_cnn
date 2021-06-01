@@ -113,7 +113,7 @@ def main(args):
         model = AdaptUnet( in_channels=1, out_channels=2)
 
         print("AdaptUnet training started: storing results in {}".format(args.weights_dir))
-        loss_train, loss_validation, IOU_train, IOU_validation, pretext_loss, pretext_acc, model = train_adaptation_unet(model , 
+        loss_train, loss_validation, IOU_train, IOU_validation, pretext_loss, pretext_acc, model,segmentation_progress = train_adaptation_unet(model , 
                       train_source_dataloader,
                       val_source_dataloader,
                       train_target_dataloader,
@@ -121,10 +121,38 @@ def main(args):
                       **kwargs_dict)
         print("AdaptUnet training completed")
         
+        plot_segmentation_progress(segmentation_progress, args.weights_dir)
         img_file_path = os.path.join(args.weights_dir, args.weights_fname +"_train.png")
         plot_results(img_file_path, loss_train, loss_validation, IOU_train, IOU_validation, metric_name='IoU')
         img_file_path = os.path.join(args.weights_dir, args.weights_fname +"_pretext_train.png")
         plot_results(img_file_path, pretext_loss, pretext_loss, pretext_acc, pretext_acc, metric_name='pretext_accuracy')
+
+
+""" segmentation plotting"""
+def plot_segmentation_progress(segmentation_progress, log_dir):
+        finals = []
+        pred_progress_list,mask_progress_list = [],[]
+        for epoch, items in segmentation_progress:
+            cat_tensor = torch.cat(  [  torch.where( pred > 0., pred, true*0.5 )  for idx, pred , true in items if pred.shape[1] == 2058  ]    , dim=0)
+            
+            pred_cat = torch.cat(  [ pred for idx, pred , true in items if pred.shape[1] == 2058  ]    , dim=0)
+            true_cat = torch.cat(  [ true for idx, pred , true in items if pred.shape[1] == 2058  ]    , dim=0)
+            pred_progress_list.append(pred_cat)
+            mask_progress_list.append(true_cat)
+            finals.append(cat_tensor)
+        
+
+        fig = plt.figure(figsize=(10,10))
+        plt.axis("off")
+
+        ims = [[plt.imshow(pred ,animated=True), plt.imshow(mask, animated=True, cmap='jet',alpha=0.2) ] for pred,mask in zip(pred_progress_list,mask_progress_list) ]
+
+        ims = ims + [ims[-1] for _ in range(5)]
+        ani = animation.ArtistAnimation(fig, ims, interval=1000, repeat_delay=100000, blit=True)
+        writer = PillowWriter(fps=2)  
+
+        path = os.path.join(log_dir, "segmentation_progress.gif")
+        ani.save(path, writer=writer)  
 
 
 
