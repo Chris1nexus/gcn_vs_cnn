@@ -600,7 +600,9 @@ def train_adaptation_unet(model ,
 
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    evaluation_batch = next(iter(source_validation_dataiter))
+
+    #source_val_iter = iter(source_validation_dataiter)
+    evaluation_batch = [batch for batch in source_validation_dataiter][:4]
     segmentation_progress = []
 
     IOU_train = []
@@ -757,8 +759,9 @@ def train_adaptation_unet(model ,
                   print("\nvalidation loss: ", mean_validation_loss)
                   print("validation iou: ", np.mean(IOU_validation_epoch))
 
-
+                progress = []
                 for idx, batch in enumerate(evaluation_batch):
+                                
                                 img, mask = batch 
                                           
                                 img, mask  = img.to(device).float(), mask.long().squeeze().to(device)
@@ -777,12 +780,13 @@ def train_adaptation_unet(model ,
                                               progress.append( (idx, pred_grid, true_grid ) )
 
 
-                                segmentation_progress.append( (epoch, progress)  )
+                                
                                   
                                 del img
                                 del mask
                                 del y_pred
-                                
+                segmentation_progress.append( (epoch, progress)  )
+                
                 loss_validation.append(mean_validation_loss)
                 IOU_validation.append(np.mean(IOU_validation_epoch))
 
