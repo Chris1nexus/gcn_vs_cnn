@@ -771,6 +771,9 @@ def train_adaptation_unet(model ,
                                               softmax = nn.Softmax(dim=1)
                                               y_pred_binarized = softmax(y_pred).argmax(dim=1,keepdim=True)
                     
+                                              print("inner pred: ", y_pred_binarized.shape)
+                                              print("inner true: ", mask.shape)
+
                                               pred_grid = np.transpose(vutils.make_grid(
                                                   y_pred_binarized.detach().float(), padding=2, nrow=5)
                                                   .cpu(),(1,2,0))
