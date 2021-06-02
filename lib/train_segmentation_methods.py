@@ -769,7 +769,7 @@ def train_adaptation_unet(model ,
                                 with torch.set_grad_enabled(phase == "train"):
                                               y_pred = model(img)
                                               softmax = nn.Softmax(dim=1)
-                                              y_pred_binarized = softmax(y_pred).argmax(dim=1)
+                                              y_pred_binarized = softmax(y_pred).argmax(dim=1,keepdim=True)
                     
                                               pred_grid = np.transpose(vutils.make_grid(
                                                   y_pred_binarized.detach().float(), padding=2, nrow=5)
@@ -783,7 +783,7 @@ def train_adaptation_unet(model ,
                                 
                                 print(pred_grid.shape)
                                 print(true_grid.shape)
-                                  
+
                                 del img
                                 del mask
                                 del y_pred
