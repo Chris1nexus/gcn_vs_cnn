@@ -153,7 +153,6 @@ ipywidgets==7.6.3
 isodate==0.6.0
 itsdangerous==1.1.0
 jax==0.2.13
-jaxlib==0.1.66+cuda110
 jdcal==1.4.1
 jedi==0.18.0
 jieba==0.42.1
