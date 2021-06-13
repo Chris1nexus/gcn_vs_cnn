@@ -36,9 +36,9 @@ Here there is also the 'lib' folder which contains the source files:
 - 1.1 
 usage: 
 
-* CNN experiment (cnn_experiment.py)
+* CNN experiment 
 
-	cnn_experiment.py [-h] [--batch-size BATCH_SIZE] [--epochs EPOCHS]
+	usage: cnn_experiment.py [-h] [--batch-size BATCH_SIZE] [--epochs EPOCHS]
 	                         [--lr LR] [--cross-val CROSS_VAL] [--std STD]
 	                         [--std-by-patient STD_BY_PATIENT] [--format FORMAT]
 	                         [--rand-rot RAND_ROT] [--rand-crop RAND_CROP]
@@ -138,7 +138,89 @@ arguments:
                         weights filename
   --images IMAGES       root folder with train and test folders
 
- 
+
+* GCN experiment 
+usage: gcn_experiment.py [-h] [--batch-size BATCH_SIZE] [--epochs EPOCHS]
+                         [--lr LR] [--gcn-type GCN_TYPE] [--dataset DATASET]
+                         [--state-dict-path STATE_DICT_PATH]
+                         [--unet-lr UNET_LR] [--unet-epochs UNET_EPOCHS]
+                         [--std STD] [--std-by-patient STD_BY_PATIENT]
+                         [--format FORMAT] [--workers WORKERS]
+                         [--weights-dir WEIGHTS_DIR]
+                         [--weights-fname WEIGHTS_FNAME] [--images IMAGES]
+
+
+
+arguments:
+  -h, --help            show this help message and exit
+  --batch-size BATCH_SIZE
+                        input batch size for training (default: 32)
+  --epochs EPOCHS       number of epochs to train (default: 200)
+  --lr LR               initial learning rate (default: 0.001)
+  --gcn-type GCN_TYPE   gcn library that implements the GCN(default torch):
+                        ['torch', 'sg'] 'torch' is the torch geometric library
+                        'sg' is the stellargraph library
+  --dataset DATASET     dataset on which the GCN is trained (default unet):
+                        ['unet', 'gt'] 'unet' is the graph dataset created
+                        from predicted segmentation masks 'gt' is the graph
+                        dataset created from ground truth masks
+  --state-dict-path STATE_DICT_PATH
+                        (ONLY VALID IF unet dataset) Path to the weights of
+                        the trained unet model (if this is valid, --unet-lr,
+                        --unet-epochs are ignored), else a unet will be
+                        trained with: lr=unet-lr argument, batch_size=4,
+                        epochs=unet-epochs argument all remaining parameters
+                        are configurable by means of the available command
+                        line arguments
+  --unet-lr UNET_LR     (ONLY VALID IF unet dataset) unet learning rate
+                        (default: 0.00005)
+  --unet-epochs UNET_EPOCHS
+                        (ONLY VALID IF unet dataset) unet epochs (default: 40)
+  --std STD             (ONLY VALID IF unet dataset) [True, False] (default to
+                        True) standardize slide images according to the
+                        channel statistics
+  --std-by-patient STD_BY_PATIENT
+                        (ONLY VALID IF unet dataset) [True, False] (default to
+                        False) compute mean and variance for each 'train'
+                        split patient and standardize each of their samples by
+                        their own statistics: test samples are standardized
+                        according to the average mean and pooled variance
+  --format FORMAT       (ONLY VALID IF unet dataset) slide image
+                        format:['rgb','gray'] (default is rgb)
+  --workers WORKERS     number of workers for data loading (default: 4)
+  --weights-dir WEIGHTS_DIR
+                        folder to save weights
+  --weights-fname WEIGHTS_FNAME
+                        weights filename
+  --images IMAGES       root folder with train and test folders
+
+
+
+* Cell segmentation domain adaptation experiment
+
+usage: adaptation_experiment.py [-h] [--batch-size BATCH_SIZE]
+                                [--epochs EPOCHS] [--lr LR]
+                                [--cross-val CROSS_VAL] [--workers WORKERS]
+                                [--weights-dir WEIGHTS_DIR]
+                                [--weights-fname WEIGHTS_FNAME]
+                                [--images IMAGES]
+
+arguments:
+  -h, --help            show this help message and exit
+  --batch-size BATCH_SIZE
+                        input batch size for training (default: 4)
+  --epochs EPOCHS       number of epochs to train (default: 100)
+  --lr LR               initial learning rate (default: 0.001)
+  --cross-val CROSS_VAL
+                        Perform 5-fold cross-validation: [True, False]
+                        (default to False)
+  --workers WORKERS     number of workers for data loading (default: 4)
+  --weights-dir WEIGHTS_DIR
+                        folder to save weights
+  --weights-fname WEIGHTS_FNAME
+                        weights filename
+  --images IMAGES       root folder with train and test folders
+
 ## 2 Requirements
 
 | **Ubuntu**      | `\\`          |
