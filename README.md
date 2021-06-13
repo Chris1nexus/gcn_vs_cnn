@@ -95,6 +95,7 @@ Here there is also the 'lib' folder which contains the source files:
 	  --images IMAGES       root folder with train and test folders
 
 * Unet experiment
+
 	usage: unet_experiment.py [-h] [--batch-size BATCH_SIZE] [--epochs EPOCHS]
 	                          [--lr LR] [--std STD]
 	                          [--std-by-patient STD_BY_PATIENT] [--format FORMAT]
@@ -104,41 +105,56 @@ Here there is also the 'lib' folder which contains the source files:
 	                          [--weights-fname WEIGHTS_FNAME] [--images IMAGES]
 
 	arguments:
+
 	  -h, --help            show this help message and exit
+
 	  --batch-size BATCH_SIZE
 	                        input batch size for training (default: 4)
+
 	  --epochs EPOCHS       number of epochs to train (default: 10)
+
 	  --lr LR               initial learning rate (default: 0.0001)
+
 	  --std STD             [True, False] (default to True)standardize slide
 	                        images according to the channel statistics (default:
 	                        True)
+
 	  --std-by-patient STD_BY_PATIENT
 	                        [True, False] (default to False) compute mean and
 	                        variance for each 'train' split patient and
 	                        standardize each of their samples by their own
 	                        statistics: test samples are standardized according to
 	                        the average mean and pooled variance (default: False)
+
 	  --format FORMAT       slide image format:['rgb','gray'] (default is rgb)
+
 	  --rand-rot RAND_ROT   [True, False] (default to False)random rotations
 	                        (90,180,270 degrees) data augmentation (default:
 	                        False)
+
 	  --rand-crop RAND_CROP
 	                        [True, False] (default to False)random crop and zoom
 	                        (keep from 0.7 to 1.0 of the original image ) data
 	                        augmentation (default: False)
+
 	  --rand-elastic-deform RAND_ELASTIC_DEFORM
 	                        [True, False] (default to False)elastic deformation
 	                        (default: False): alpha in [1,4] sigma in [0.07, 0.13]
 	                        alpha affine in [0.07, 0.13]
+
 	  --workers WORKERS     number of workers for data loading (default: 4)
+
 	  --weights-dir WEIGHTS_DIR
 	                        folder to save weights
+
 	  --weights-fname WEIGHTS_FNAME
 	                        weights filename
+
 	  --images IMAGES       root folder with train and test folders
 
 
 * GCN experiment 
+
 	usage: gcn_experiment.py [-h] [--batch-size BATCH_SIZE] [--epochs EPOCHS]
 	                         [--lr LR] [--gcn-type GCN_TYPE] [--dataset DATASET]
 	                         [--state-dict-path STATE_DICT_PATH]
@@ -151,18 +167,25 @@ Here there is also the 'lib' folder which contains the source files:
 
 
 	arguments:
+
 	  -h, --help            show this help message and exit
+
 	  --batch-size BATCH_SIZE
 	                        input batch size for training (default: 32)
+
 	  --epochs EPOCHS       number of epochs to train (default: 200)
+
 	  --lr LR               initial learning rate (default: 0.001)
+
 	  --gcn-type GCN_TYPE   gcn library that implements the GCN(default torch):
 	                        ['torch', 'sg'] 'torch' is the torch geometric library
 	                        'sg' is the stellargraph library
+
 	  --dataset DATASET     dataset on which the GCN is trained (default unet):
 	                        ['unet', 'gt'] 'unet' is the graph dataset created
 	                        from predicted segmentation masks 'gt' is the graph
 	                        dataset created from ground truth masks
+
 	  --state-dict-path STATE_DICT_PATH
 	                        (ONLY VALID IF unet dataset) Path to the weights of
 	                        the trained unet model (if this is valid, --unet-lr,
@@ -171,26 +194,35 @@ Here there is also the 'lib' folder which contains the source files:
 	                        epochs=unet-epochs argument all remaining parameters
 	                        are configurable by means of the available command
 	                        line arguments
+
 	  --unet-lr UNET_LR     (ONLY VALID IF unet dataset) unet learning rate
 	                        (default: 0.00005)
+
 	  --unet-epochs UNET_EPOCHS
 	                        (ONLY VALID IF unet dataset) unet epochs (default: 40)
+
 	  --std STD             (ONLY VALID IF unet dataset) [True, False] (default to
 	                        True) standardize slide images according to the
 	                        channel statistics
+
 	  --std-by-patient STD_BY_PATIENT
 	                        (ONLY VALID IF unet dataset) [True, False] (default to
 	                        False) compute mean and variance for each 'train'
 	                        split patient and standardize each of their samples by
 	                        their own statistics: test samples are standardized
 	                        according to the average mean and pooled variance
+
 	  --format FORMAT       (ONLY VALID IF unet dataset) slide image
 	                        format:['rgb','gray'] (default is rgb)
+
 	  --workers WORKERS     number of workers for data loading (default: 4)
+
 	  --weights-dir WEIGHTS_DIR
 	                        folder to save weights
+
 	  --weights-fname WEIGHTS_FNAME
 	                        weights filename
+
 	  --images IMAGES       root folder with train and test folders
 
 
@@ -204,20 +236,30 @@ Here there is also the 'lib' folder which contains the source files:
 	                                [--weights-fname WEIGHTS_FNAME]
 	                                [--images IMAGES]
 
+
 	arguments:
+
 	  -h, --help            show this help message and exit
+
 	  --batch-size BATCH_SIZE
 	                        input batch size for training (default: 4)
+
 	  --epochs EPOCHS       number of epochs to train (default: 100)
+
 	  --lr LR               initial learning rate (default: 0.001)
+
 	  --cross-val CROSS_VAL
 	                        Perform 5-fold cross-validation: [True, False]
 	                        (default to False)
+
 	  --workers WORKERS     number of workers for data loading (default: 4)
+
 	  --weights-dir WEIGHTS_DIR
 	                        folder to save weights
+
 	  --weights-fname WEIGHTS_FNAME
 	                        weights filename
+	                        
 	  --images IMAGES       root folder with train and test folders
 
 ## 2 Requirements
