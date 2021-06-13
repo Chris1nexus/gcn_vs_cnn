@@ -95,6 +95,49 @@ usage:
 
 	  --images IMAGES       root folder with train and test folders
 
+* Unet experiment
+usage: unet_experiment.py [-h] [--batch-size BATCH_SIZE] [--epochs EPOCHS]
+                          [--lr LR] [--std STD]
+                          [--std-by-patient STD_BY_PATIENT] [--format FORMAT]
+                          [--rand-rot RAND_ROT] [--rand-crop RAND_CROP]
+                          [--rand-elastic-deform RAND_ELASTIC_DEFORM]
+                          [--workers WORKERS] [--weights-dir WEIGHTS_DIR]
+                          [--weights-fname WEIGHTS_FNAME] [--images IMAGES]
+
+arguments:
+  -h, --help            show this help message and exit
+  --batch-size BATCH_SIZE
+                        input batch size for training (default: 4)
+  --epochs EPOCHS       number of epochs to train (default: 10)
+  --lr LR               initial learning rate (default: 0.0001)
+  --std STD             [True, False] (default to True)standardize slide
+                        images according to the channel statistics (default:
+                        True)
+  --std-by-patient STD_BY_PATIENT
+                        [True, False] (default to False) compute mean and
+                        variance for each 'train' split patient and
+                        standardize each of their samples by their own
+                        statistics: test samples are standardized according to
+                        the average mean and pooled variance (default: False)
+  --format FORMAT       slide image format:['rgb','gray'] (default is rgb)
+  --rand-rot RAND_ROT   [True, False] (default to False)random rotations
+                        (90,180,270 degrees) data augmentation (default:
+                        False)
+  --rand-crop RAND_CROP
+                        [True, False] (default to False)random crop and zoom
+                        (keep from 0.7 to 1.0 of the original image ) data
+                        augmentation (default: False)
+  --rand-elastic-deform RAND_ELASTIC_DEFORM
+                        [True, False] (default to False)elastic deformation
+                        (default: False): alpha in [1,4] sigma in [0.07, 0.13]
+                        alpha affine in [0.07, 0.13]
+  --workers WORKERS     number of workers for data loading (default: 4)
+  --weights-dir WEIGHTS_DIR
+                        folder to save weights
+  --weights-fname WEIGHTS_FNAME
+                        weights filename
+  --images IMAGES       root folder with train and test folders
+
  
 ## 2 Requirements
 
