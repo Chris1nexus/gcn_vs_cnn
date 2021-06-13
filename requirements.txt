@@ -269,7 +269,6 @@ pyemd==0.5.1
 pyerfa==2.0.0
 pyglet==1.5.0
 Pygments==2.6.1
-pygobject==3.26.1
 pygraphviz==1.7
 pymc3==3.11.2
 PyMeeus==0.5.11
