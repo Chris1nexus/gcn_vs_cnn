@@ -6,16 +6,21 @@ unet_experiments.py
 2 Requirements
 
 3 Description
-	3.1 Graph data structure creation method
-	3.2 Image processing methods
-	3.3 Data augmentation procedures
-	3.4 Graph features
-	3.5 Experiments
-	3.6 Results
+
+- 3.1 Graph data structure creation method
+
+- 3.2 Image processing methods
+
+- 3.3 Data augmentation procedures
+
+- 3.4 Graph features
+- 3.5 Experiments
+- 3.6 Results
 4 Further experiments
-	3.1 Unet segmentation on image sub-patches
-	3.2 Domain adaptation to remove noise due to cells in the images
+- 4.1 Unet segmentation on image sub-patches
+- 4.2 Domain adaptation to remove noise due to cells in the images
 5 Package description
+
 The top level folder containts the experiments to run from command line.
 Here there is also the 'lib' folder which contains the source files:
 lib/data contains utilities to manage data and plot graphs.
