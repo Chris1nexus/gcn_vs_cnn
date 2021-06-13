@@ -16,9 +16,12 @@ unet_experiments.py
 - 3.4 Graph features
 - 3.5 Experiments
 - 3.6 Results
+
 4 Further experiments
+
 - 4.1 Unet segmentation on image sub-patches
 - 4.2 Domain adaptation to remove noise due to cells in the images
+
 5 Package description
 
 The top level folder containts the experiments to run from command line.
