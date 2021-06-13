@@ -36,56 +36,64 @@ Here there is also the 'lib' folder which contains the source files:
 - 1.1 
 usage: 
 
-CNN experiment (cnn_experiment.py)
-arguments:
+* CNN experiment (cnn_experiment.py)
 
-  -h, --help            show this help message and exit
+	cnn_experiment.py [-h] [--batch-size BATCH_SIZE] [--epochs EPOCHS]
+	                         [--lr LR] [--cross-val CROSS_VAL] [--std STD]
+	                         [--std-by-patient STD_BY_PATIENT] [--format FORMAT]
+	                         [--rand-rot RAND_ROT] [--rand-crop RAND_CROP]
+	                         [--rand-elastic-deform RAND_ELASTIC_DEFORM]
+	                         [--workers WORKERS] [--weights-dir WEIGHTS_DIR]
+	                         [--weights-fname WEIGHTS_FNAME] [--images IMAGES]
+	arguments:
 
-  --batch-size BATCH_SIZE
-                        input batch size for training (default: 4)
+	  -h, --help            show this help message and exit
 
-  --epochs EPOCHS       number of epochs to train (default: 100)
+	  --batch-size BATCH_SIZE
+	                        input batch size for training (default: 4)
 
-  --lr LR               initial learning rate (default: 0.001)
+	  --epochs EPOCHS       number of epochs to train (default: 100)
 
-  --cross-val CROSS_VAL
-                        Perform 5-fold cross-validation: [True,False] (default
-                        to False)
+	  --lr LR               initial learning rate (default: 0.001)
 
-  --std STD             standardize images according to the channel statistics
-                        [True, False] (default True)
+	  --cross-val CROSS_VAL
+	                        Perform 5-fold cross-validation: [True,False] (default
+	                        to False)
 
-  --std-by-patient STD_BY_PATIENT
-                        [True, False] (default to False) compute mean and
-                        variance for each 'train' split patient and
-                        standardize each of their samples by their own
-                        statistics: test samples are standardized according to
-                        the average mean and pooled variance
+	  --std STD             standardize images according to the channel statistics
+	                        [True, False] (default True)
 
-  --format FORMAT       image format:['rgb','gray'] (default is rgb)
+	  --std-by-patient STD_BY_PATIENT
+	                        [True, False] (default to False) compute mean and
+	                        variance for each 'train' split patient and
+	                        standardize each of their samples by their own
+	                        statistics: test samples are standardized according to
+	                        the average mean and pooled variance
 
-  --rand-rot RAND_ROT   random rotations (90,180,270 degrees) data
-                        augmentation, [True, False] (default to False)
+	  --format FORMAT       image format:['rgb','gray'] (default is rgb)
 
-  --rand-crop RAND_CROP
-                        random crop and zoom (keep from 0.7 to 1.0 of the
-                        original image ) data augmentation, [True, False]
-                        (default to False)
+	  --rand-rot RAND_ROT   random rotations (90,180,270 degrees) data
+	                        augmentation, [True, False] (default to False)
 
-  --rand-elastic-deform RAND_ELASTIC_DEFORM
-                        [True, False] (default to False) elastic deformation:
-                        alpha in [1,4] sigma in [0.07, 0.13] alpha affine in
-                        [0.07, 0.13]
+	  --rand-crop RAND_CROP
+	                        random crop and zoom (keep from 0.7 to 1.0 of the
+	                        original image ) data augmentation, [True, False]
+	                        (default to False)
 
-  --workers WORKERS     number of workers for data loading (default: 4)
+	  --rand-elastic-deform RAND_ELASTIC_DEFORM
+	                        [True, False] (default to False) elastic deformation:
+	                        alpha in [1,4] sigma in [0.07, 0.13] alpha affine in
+	                        [0.07, 0.13]
 
-  --weights-dir WEIGHTS_DIR
-                        folder to save weights
+	  --workers WORKERS     number of workers for data loading (default: 4)
 
-  --weights-fname WEIGHTS_FNAME
-                        weights filename
-                        
-  --images IMAGES       root folder with train and test folders
+	  --weights-dir WEIGHTS_DIR
+	                        folder to save weights
+
+	  --weights-fname WEIGHTS_FNAME
+	                        weights filename
+
+	  --images IMAGES       root folder with train and test folders
 
  
 ## 2 Requirements
