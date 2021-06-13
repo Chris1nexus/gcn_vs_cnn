@@ -323,17 +323,12 @@ Here there is also the 'lib' folder which contains the source files:
 	  --workers WORKERS     number of workers for data loading (default: 4)
 
 	  --logs-dir LOGS_DIR   folder to save weights
-	  
+
 	  --images IMAGES       root folder with train and test folders
 
 ## 2 Requirements
 
-| **Ubuntu**      | `\\`          |
-|-----------------|---------------|
-| **ROS**         | `\\`          |
-| **Gazebo**      | `\\`          |
-| **Python**      | `\\`          |
-| **GIT**         | `\\`          |
+
 
 ## 3 Description
 The aim of this project is to compare the capability of convolutional and graph deep learning methods to discriminate between papillary and clear cell renal cancer.
