@@ -296,7 +296,8 @@ Here there is also the 'lib' folder which contains the source files:
 	  --images IMAGES       root folder with train and test folders
 
 
-* Plot gradcam results of a trained CNN (requires weights of an already trained vgg net from cnn_experiment.py )
+* Plot gradcam results of a trained CNN (requires weights of an already trained vgg16 net from cnn_experiment.py )
+
 	usage: eval_gradcam.py [-h] [--vgg-weights-path VGG_WEIGHTS_PATH]
 	                       [--batch-size BATCH_SIZE] [--std STD] [--format FORMAT]
 	                       [--workers WORKERS] [--logs-dir LOGS_DIR]
@@ -305,16 +306,24 @@ Here there is also the 'lib' folder which contains the source files:
 	CNN gradcam plotting (de-standardization by-patient not supported)
 
 	optional arguments:
+
 	  -h, --help            show this help message and exit
+
 	  --vgg-weights-path VGG_WEIGHTS_PATH
 	                        path to the weights of the vgg16 classifier
+
 	  --batch-size BATCH_SIZE
 	                        input batch size for training (default: 4)
+
 	  --std STD             standardize images according to the channel statistics
 	                        [True, False] (default to True)
+
 	  --format FORMAT       image format:['rgb','gray'] (default is rgb)
+
 	  --workers WORKERS     number of workers for data loading (default: 4)
+
 	  --logs-dir LOGS_DIR   folder to save weights
+	  
 	  --images IMAGES       root folder with train and test folders
 
 ## 2 Requirements
