@@ -769,7 +769,7 @@ def setup_augmentation(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="CNN experiment"
+        description="Train domain adaptation network"
     )
 
     parser.add_argument(

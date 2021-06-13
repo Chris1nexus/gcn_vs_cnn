@@ -187,7 +187,7 @@ def plot_results(img_file_path, train_loss, val_loss, train_metric, val_metric, 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="UNET experiment"
+        description="Train unet on adaptUnet cleaned images"
     )
 
     parser.add_argument(
