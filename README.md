@@ -1,6 +1,7 @@
 # CNN vs GCN - Comparison between CNN and GCN for the classification of Renal Cell Cancer types
 ## Table of content
 1 Usage
+unet_experiments.py 
 
 2 Requirements
 
@@ -15,11 +16,15 @@
 	3.1 Unet segmentation on image sub-patches
 	3.2 Domain adaptation to remove noise due to cells in the images
 5 Package description
-
+The top level folder containts the experiments to run from command line.
+Here there is also the 'lib' folder which contains the source files:
+lib/data contains utilities to manage data and plot graphs.
+lib/models contains the networks used in the experiments
+lib contains all training procedures
 
 
 ## Usage
-
+ 
 ## Requirements
 
 
@@ -139,9 +144,4 @@ In the end, the original unet segmentation performance has not improved when app
 
 
 
-## Project content
 
-* lib
-    * data
-    * models
-   	
