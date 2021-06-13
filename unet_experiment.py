@@ -38,7 +38,7 @@ from torch.utils.data import DataLoader
 from torchvision import models
 import matplotlib.pyplot as plt
 
-
+from lib.data.utils import str2bool
 
 
 def main(args):
@@ -249,15 +249,15 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--std",
-        type=bool,
+        type=str2bool,
         default=True,
-        help="standardize slide images according to the channel statistics (default: True)",
+        help=" [True, False] (default to True)standardize slide images according to the channel statistics (default: True)",
     )
     parser.add_argument(
         "--std-by-patient",
-        type=bool,
+        type=str2bool,
         default=False,
-        help="compute mean and variance for each 'train' split patient\n and standardize each of their samples by their own statistics: test samples are standardized according to the average mean and pooled variance (default: False)",
+        help=" [True, False] (default to False) compute mean and variance for each 'train' split patient\n and standardize each of their samples by their own statistics: test samples are standardized according to the average mean and pooled variance (default: False)",
     )
     parser.add_argument(
         "--format",
@@ -274,22 +274,22 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--rand-rot",
-        type=bool,
+        type=str2bool,
         default=False,
-        help="random rotations (90,180,270 degrees) data augmentation  (default: False)",
+        help=" [True, False] (default to False)random rotations (90,180,270 degrees) data augmentation  (default: False)",
     )
     parser.add_argument(
         "--rand-crop",
-        type=bool,
+        type=str2bool,
         default=False,
-        help="random crop and zoom (keep from 0.7 to 1.0 of the original image ) data augmentation (default: False)"
+        help=" [True, False] (default to False)random crop and zoom (keep from 0.7 to 1.0 of the original image ) data augmentation (default: False)"
     )
 
     parser.add_argument(
         "--rand-elastic-deform",
-        type=bool,
+        type=str2bool,
         default=False,
-        help="elastic deformation (default: False):\n\t\t\t"+\
+        help=" [True, False] (default to False)elastic deformation (default: False):\n\t\t\t"+\
                                             "alpha in [1,4]\n\t\t\t" +\
                                             "sigma in [0.07, 0.13]\n\t\t\t"+\
                                              "alpha affine in [0.07, 0.13]"

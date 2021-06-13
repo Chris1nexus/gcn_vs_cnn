@@ -25,7 +25,7 @@ from torch.utils.data import DataLoader
 from torchvision import models
 import matplotlib.pyplot as plt
 from torchvision import models
-
+from lib.data.utils import str2bool
 
 def main(args):
 
@@ -182,9 +182,9 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--std",
-        type=bool,
+        type=str2bool,
         default=True,
-        help="standardize images according to the channel statistics(default True)",
+        help="standardize images according to the channel statistics [True, False] (default to True)",
     )
 
     parser.add_argument(

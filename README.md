@@ -1,4 +1,35 @@
 # CNN vs GCN - Comparison between CNN and GCN for the classification of Renal Cell Cancer types
+## Table of content
+1 Usage
+
+2 Requirements
+
+3 Description
+	3.1 Graph data structure creation method
+	3.2 Image processing methods
+	3.3 Data augmentation procedures
+	3.4 Graph features
+	3.5 Experiments
+	3.6 Results
+4 Further experiments
+	3.1 Unet segmentation on image sub-patches
+	3.2 Domain adaptation to remove noise due to cells in the images
+5 Package description
+
+
+
+## Usage
+
+## Requirements
+
+
+### Versions
+| **Ubuntu**      | `\\`          |
+|-----------------|---------------|
+| **ROS**         | `\\`          |
+| **Gazebo**      | `\\`          |
+| **Python**      | `\\`          |
+| **GIT**         | `\\`          |
 
 ## Description
 The aim of this project is to compare the capability of convolutional and graph deep learning methods to discriminate between papillary and clear cell renal cancer.
@@ -82,46 +113,35 @@ The GCN instead has been evaluated by splitting the training experiment in three
 Through this set of experiments, it has been observed that segmenting raw data from unet (and then creating graphs from these), allows to improve accuracy of the GCN classifier of up to 25%: the best obtained GCN model trained this way, achieved around 95% validation accuracy, reaching comparable performance to the CNN.
 
 
-### Plotting of convolutional features and graph features
 
 
-### Further experiments
-Unet segmentation on image crops:
+### Further experiments (Unet segmentation on image crops)
 Unet segmentation on square crops of the raw data: the goal of this experiment is to simplify the area that has to be segmented, by splitting each image in a 4x4 grid of patches that now become the samples that have to be segmented. This has been done since i have observed that many samples show very complex vascular network patterns that appeared to be difficult to segment for the network. 
 However in this case the IoU on validation crops stayed around 40%, similar to segmentation over the uncropped image sample.
 Note that splitting the images into 4x4 grids provides a way to do intrinsic data augmentation since now each sample is divided into 16 crops: the original dataset of 175 images becomes 
 of 2800 images.
 
-Noise removal and segmentation:
+###  Further experiments (Domain adaptation to remove noise due to cells in the images):
 By observing the dataset sample, it is easy to see that cells very frequently overlap the vascular network: this could be a source of noise that can be eliminated.
 In order to achieve this, a secondary unet is trained to segment cell nuclei. 
 From the segmentation masks of the cell nuclei it is possible to delete pixels of the original image where the cells were located.
 Then, the color of the surroundings of the eliminated pixels is propagated into to the removed pixels in order to smooth out the color of the vascular network.
 However, a proper dataset has not been found for this purpose, so degraded performance were obtained through the dataset provided here https://github.com/VikramShenoy97/Histology-Image-Segmentation-using-UNet.
-The github dataset slightly differs from our RCC dataset, so the unet trained on that github can't properly do inference on our samples.
+The cell dataset provided in his repository slightly differs from our RCC dataset, so a simple unet trained on his dataset can't properly do inference on our samples.
+To overcome this issue, domain adaptation is used as a means to minimize the difference between our dataset and his:
+a domain classifier equal to the one provided in (https://arxiv.org/abs/1505.07818) is attached to the latent representation of the UNet (the layer in between the downsampling and upsampling paths) in order to perform domain adversarial training. The novelty compared to the approach provided in the cited paper is that this approach has been used for a main task of image segmentation task rather
+than image classification. This allowed to shift the learned distribution of the latent space representing just (https://github.com/VikramShenoy97/Histology-Image-Segmentation-using-UNet)
+to one that also considers our dataset distribution.
+This has been necessary since our dataset provides segmentation ground truths for the vascular network but not for the cell segmentation, which are instead provided in the mentioned dataset in the github repository.
+In the end, the original unet segmentation performance has not improved when applied to the simplified images, and performed on par to the one trained on the non simplified images. 
 
-For further work, domain adaptation could be deployed in the context of segmentation in order to bring closer the distributions of the two datasets. 
 
-
-## Requirements
-
-### Versions
-| **Ubuntu**      | `\\`          |
-|-----------------|---------------|
-| **ROS**         | `\\`          |
-| **Gazebo**      | `\\`          |
-| **Python**      | `\\`          |
-| **GIT**         | `\\`          |
 
 
 
 ## Project content
 
-* package 1
-    * functionality 1
-    * functionality 2
-
-
-
-## Contribution
-If you want to contribute to this repo, please have a look to [GUIDELINES.md](./documentation/GUIDELINES.md) file.
+* lib
+    * data
+    * models
+   	

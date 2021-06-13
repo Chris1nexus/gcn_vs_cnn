@@ -29,7 +29,7 @@ from lib.models.neural_nets import UNet, GCN
 from lib.managers import RCCDatasetManager, ExperimentManager
 
 
-
+from lib.data.utils import str2bool
 
 def main(args):
 
@@ -361,15 +361,15 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--std",
-        type=bool,
+        type=str2bool,
         default=True,
-        help="(ONLY VALID IF unet dataset) standardize slide images according to the channel statistics",
+        help="(ONLY VALID IF unet dataset) [True, False] (default to True) standardize slide images according to the channel statistics",
     )
     parser.add_argument(
         "--std-by-patient",
-        type=bool,
+        type=str2bool,
         default=False,
-        help="(ONLY VALID IF unet dataset) compute mean and variance for each 'train' split patient\n and standardize each of their samples by their own statistics: test samples are standardized according to the average mean and pooled variance",
+        help="(ONLY VALID IF unet dataset) [True, False] (default to False) compute mean and variance for each 'train' split patient\n and standardize each of their samples by their own statistics: test samples are standardized according to the average mean and pooled variance",
     )
     parser.add_argument(
         "--format",

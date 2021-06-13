@@ -65,6 +65,9 @@ import torch.optim as optim
 import torch.nn as nn
 from lib.data.metrics import IoU
 import torchvision.utils as vutils
+from lib.data.utils import str2bool
+
+
 
 def train_segmentation_model(log_weights_path,  train_dataloader, val_dataloader, model,
                               learning_rate=0.00001,
@@ -789,9 +792,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--cross-val",
-        type=bool,
+        type=str2bool,
         default=False,
-        help="Perform 5-fold cross-validation: [True,False] (default to False)",
+        help="Perform 5-fold cross-validation: [True, False] (default to False)",
     )
 
 

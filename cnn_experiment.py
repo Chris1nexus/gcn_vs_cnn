@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 import sys
 from sklearn import model_selection
 import copy
-
+from lib.data.utils import str2bool
 
 def main(args):
 
@@ -273,9 +273,10 @@ if __name__ == "__main__":
         default=0.0001,
         help="initial learning rate (default: 0.001)",
     )
+
     parser.add_argument(
         "--cross-val",
-        type=bool,
+        type=str2bool,
         default=False,
         help="Perform 5-fold cross-validation: [True,False] (default to False)",
     )
@@ -286,15 +287,15 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--std",
-        type=bool,
+        type=str2bool,
         default=True,
-        help="standardize images according to the channel statistics (default True)",
+        help="standardize images according to the channel statistics  [True, False] (default True)  ",
     )
     parser.add_argument(
         "--std-by-patient",
-        type=bool,
+        type=str2bool,
         default=False,
-        help="(default False) compute mean and variance for each 'train' split patient\n and standardize each of their samples by their own statistics: test samples are standardized according to the average mean and pooled variance",
+        help=" [True, False] (default to False) compute mean and variance for each 'train' split patient\n and standardize each of their samples by their own statistics: test samples are standardized according to the average mean and pooled variance ",
     )
     parser.add_argument(
         "--format",
@@ -309,22 +310,22 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--rand-rot",
-        type=bool,
+        type=str2bool,
         default=False,
-        help="random rotations (90,180,270 degrees) data augmentation",
+        help="random rotations (90,180,270 degrees) data augmentation,  [True, False] (default to False) ",
     )
     parser.add_argument(
         "--rand-crop",
-        type=bool,
+        type=str2bool,
         default=False,
-        help="random crop and zoom (keep from 0.7 to 1.0 of the original image ) data augmentation"
+        help="random crop and zoom (keep from 0.7 to 1.0 of the original image ) data augmentation,  [True, False] (default to False)"
     )
 
     parser.add_argument(
         "--rand-elastic-deform",
-        type=bool,
+        type=str2bool,
         default=False,
-        help="elastic deformation:\n\t\t\t"+\
+        help=" [True, False] (default to False) elastic deformation:\n\t\t\t"+\
                                             "alpha in [1,4]\n\t\t\t" +\
                                             "sigma in [0.07, 0.13]\n\t\t\t"+\
                                              "alpha affine in [0.07, 0.13]"
