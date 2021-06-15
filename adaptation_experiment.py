@@ -56,7 +56,7 @@ from lib.data.image_utils import np_recompose_tensor, img_paste_fn, seg_paste_fn
 import cv2
 from torch.utils.data import DataLoader
 from torchvision import transforms
-from tqdm.notebook import tqdm
+from tqdm import tqdm #from tqdm.notebook import tqdm
 from lib.models.neural_nets import UNet
 
 
