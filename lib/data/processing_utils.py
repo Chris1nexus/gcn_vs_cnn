@@ -417,6 +417,12 @@ class ToGraphTransform(object):
         return highlight_image
     @staticmethod
     def plot_all(graph_item, highlight_grayscale_color=255):
+        """
+        Plot all nodes, joints and edges of a graph. 
+        Node color = highlight_grayscale_color//4
+        Edge color = highlight_grayscale_color//2
+        Joint color = highlight_grayscale_color
+        """
         node_labels = graph_item.nodes_cc.labels
         edge_labels = graph_item.edges_cc.labels
         joint_labels = graph_item.joints_cc.labels
@@ -433,6 +439,16 @@ class ToGraphTransform(object):
                             comp_type='node', 
                             highlight_image=None, 
                             highlight_grayscale_color=255):
+        """
+        Visualize nodes, edge between any two nodes or all edges adjacent to a given node BACK INTO THE ORIGINAL IMAGE VASCULAR NETWORK.
+        A node id is the one assigned by taking its (label - 1).
+        The association between an abstract node and the one on the image is correct thanks to the cv2 connected components labelling and 
+        the way in which the abstract graph is built in the ToGraphTransform.graph_transform() (line 274 of this script).
+        To visualize a node, give its ID and the comp_type = "node".
+        To visualize a node and all its edges, give its ID and comp_type ="node_edges".
+        To visualize the joints of a node,give its ID and comp_type = "node_joints".
+        To visualize the edges of between node_id1 and node_id2, assign component_idx=(node_id1, node_id2) and comp_type="edge"
+        """
         
       
         if highlight_image is None:

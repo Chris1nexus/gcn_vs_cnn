@@ -28,7 +28,9 @@
 ## 1 Usage
 
 The top level folder containts the experiments to run from command line.
-Here there is also the 'lib' folder which contains the source files:
+Each script can be executed with the default parameters, but for further experiment customization, 
+do python experiment_name.py --help to read the available options. 
+In the same top level folder there is also the 'lib' folder which contains the source files:
 - lib/data contains utilities to manage data and plot graphs.
 - lib/models contains the networks used in the experiments
 - lib contains all training procedures

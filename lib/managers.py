@@ -145,11 +145,11 @@ class RCCDatasetManager(object):
           tmp_destination = './dataset.zip'
           target_directory = './rccdataset'
           target_path = os.path.join(target_directory, "vascular_segmentation")
-          if not os.path.exists(root_path) or root_path is None or \
+          if root_path is None  or not os.path.exists(root_path) or \
                               ( root_path is not None and "vascular_segmentation" not in root_path  ):
 
-            # if root path is none and the downloaded dataset folder does not exist OR 
-            # root path is NOT none and (it does not contain vascular segmentation OR it does not exist)
+            # if root path is none or path does not exist OR 
+            # (root path is NOT none and it does not contain vascular segmentation)
             # we download the dataset on the folder
             self.__download_dataset__(drive_file_id, tmp_destination, target_directory)
           else:
