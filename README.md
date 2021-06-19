@@ -26,6 +26,7 @@
 
 
 ## 1 Usage
+To use the project, run the setup.sh script (preferably in a virtual environment) to set and install all required dependencies
 
 The top level folder containts the experiments to run from command line.
 Each script can be executed with the default parameters, but for further experiment customization, 

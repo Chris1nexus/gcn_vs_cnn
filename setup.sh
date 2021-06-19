@@ -4,3 +4,4 @@ pip install -r requirements.txt
 sudo apt-get install python3-dev graphviz libgraphviz-dev pkg-config
 pip install pygraphviz
 pip install opencv-contrib-python
+export TF_FORCE_GPU_ALLOW_GROWTH=true
