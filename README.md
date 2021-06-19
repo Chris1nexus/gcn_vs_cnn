@@ -38,6 +38,9 @@ In the same top level folder there is also the 'lib' folder which contains the s
 - lib/models contains the networks used in the experiments
 - lib contains all training procedures
 
+Furthermore, a jupyter notebook (gcn_vs_cnn_experiments.ipynb) is available in the top level folder to readily test and run experiments also on colab environments.
+Slides of the presentation are also made available in pdf format in the top level folder.
+
 ### 1.1 
 
 * CNN experiment 
