@@ -26,7 +26,9 @@
 
 
 ## 1 Usage
-To use the project, run the setup.sh script (preferably in a virtual environment) to set and install all required dependencies
+To use the project, run the setup.sh script (preferably in a virtual environment) to set and install all required dependencies.
+Ubuntu18.04 is the os in which the code has been tested. 
+A user setup version of CUDA >= 10.2 is needed to run the training in moderate time (this is not installed by the script as dependencies might differ depending on the operating system).
 
 The top level folder containts the experiments to run from command line.
 Each script can be executed with the default parameters, but for further experiment customization, 
